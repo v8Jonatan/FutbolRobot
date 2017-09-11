@@ -53,7 +53,7 @@ void PredictBall ( Environment *env );
 void PlayNormal(Environment *env );
 void Arquero( Robot *robot, Environment *env );
 void Jugador( Robot *robot, Environment *env, bool masCerca );
-
+void MirarPelota(Robot *robot, Environment *env);
 
 extern "C" STRATEGY_API void Create ( Environment *env )
 {	
@@ -203,14 +203,31 @@ double ObtenerAngulo( double x0, double y0, double xf, double yf )
 
 void PlayNormal( Environment *env )
 {
-	int masCerca,i;
-	double distMin,dist;
+	int masCerca,
+		i;
+	double distMin,
+		   predictedBall_X,
+		   predictedBall_Y,
+		   dist;
 
 	masCerca = 1;
-	distMin = Distancia(env->home[1].pos.x,env->home[1].pos.y,env->predictedBall.pos.x,env->predictedBall.pos.y);
+	
+	predictedBall_X = env->predictedBall.pos.x; 
+	predictedBall_Y = env->predictedBall.pos.y;
+
+
+	distMin = Distancia(env->home[1].pos.x,
+		                env->home[1].pos.y,
+						predictedBall_X,
+						predictedBall_Y);
+	
 	for(i=2; i<5; i++)
 	{
-		dist = Distancia(env->home[i].pos.x,env->home[i].pos.y,env->predictedBall.pos.x,env->predictedBall.pos.y);
+		dist = Distancia(
+			             env->home[i].pos.x,
+			             env->home[i].pos.y,
+						 predictedBall_X,
+						 predictedBall_Y);
 		if (dist < distMin)
 		{
 			masCerca = i;
@@ -348,9 +365,15 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 		if (angleDiff < -180)
 			angleDiff += 360;
 
-		if (fabs(angleDiff) < 15)
+		if ( fabs(angleDiff) < 15)
 		{
+			//************************************************************************
+			//	POR QUE NO DIRECTAMENTE HAGO QUE TODOS APUNTEN A LA PELOTA U OBJETIVO
+			//
+			//************************************************************************
+			
 			// Estoy apuntando mas o menos hacia la pelota => voy hacia adelante
+
 			vl = MaxVel;
 			vr = MaxVel;
 		}
@@ -372,3 +395,9 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 	robot->velocityRight = vr;
 
 }
+
+void MirarPelota(Robot *robot, Environment *env)
+{
+
+}
+
