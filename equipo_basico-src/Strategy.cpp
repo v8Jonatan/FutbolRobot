@@ -249,6 +249,7 @@ void Arquero( Robot *robot, Environment *env )
 {
 	double yball = env->predictedBall.pos.y;
 	double r = robot->rotation;
+	
 	while (r > 180)
 		r -= 360;
 	while (r < -180)
@@ -329,43 +330,52 @@ void Arquero( Robot *robot, Environment *env )
 
 void Jugador( Robot *robot, Environment *env, bool masCerca )
 {
-	double x, y;
-	double vl, vr;
-	double xo,yo;
+  
+  double Pelota_x, 
+    Pelota_y,
+    vl, 
+    vr,
+    Robot_x,
+    Robot_y;
 
-	if (masCerca)
+  if (masCerca)
 	{
-		x = env->predictedBall.pos.x;
-		y = env->predictedBall.pos.y;
-		if ( y > FTOP - 2.5 ) 
-			 y = FTOP - 2.5;
-		if ( y < FBOT + 2.5 ) 
-			 y = FBOT + 2.5;
-		if ( x > FRIGHTX - 3 ) 
-			 x = FRIGHTX - 3;
-		if ( x < FLEFTX + 3 ) 
-			 x = FLEFTX + 3;
+		Pelota_x = env->predictedBall.pos.x;
+		Pelota_y = env->predictedBall.pos.y;
+		if ( Pelota_y > FTOP - 2.5 ) 
+			 Pelota_y = FTOP - 2.5;
+		if ( Pelota_y < FBOT + 2.5 ) 
+			 Pelota_y = FBOT + 2.5;
+		if ( Pelota_x > FRIGHTX - 3 ) 
+			 Pelota_x = FRIGHTX - 3;
+		if ( Pelota_x < FLEFTX + 3 ) 
+			 Pelota_x = FLEFTX + 3;
 
-		xo = robot->pos.x;
-		yo = robot->pos.y;
-		double r = robot->rotation;
-		while (r > 180)
-			r -= 360;
-		while (r < -180)
-			r += 360;
+		Robot_x = robot->pos.x;
+		Robot_y = robot->pos.y;
+		
+		double rotacion = robot->rotation;
+		while (rotacion > 180)
+			rotacion -= 360;
+		while (rotacion < -180)
+			rotacion += 360;
 
-		double ang, angleDiff;
+		double angulo, 
+		  anguloDiferencial;
 
-		ang = ObtenerAngulo(xo,yo,x,y);
+		angulo = ObtenerAngulo(Robot_x,
+				    Robot_y,
+				    Pelota_x,
+				    Pelota_y);
 
-		angleDiff = ang - r;
+		anguloDiferencial = angulo - rotacion;
 		// Normalizo a -180 a 180
-		if (angleDiff > 180)
-			angleDiff -= 360;
-		if (angleDiff < -180)
-			angleDiff += 360;
+		if (anguloDiferencial > 180)
+			anguloDiferencial -= 360;
+		if (anguloDiferencial < -180)
+			anguloDiferencial += 360;
 
-		if ( fabs(angleDiff) < 15)
+		if ( fabs(anguloDiferencial) < 15)
 		{
 			//************************************************************************
 			//	POR QUE NO DIRECTAMENTE HAGO QUE TODOS APUNTEN A LA PELOTA U OBJETIVO
@@ -380,8 +390,8 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 		else
 		{
 			// Ajusto orientacion
-			vl = -angleDiff * ATENUAR;
-			vr = angleDiff * ATENUAR;
+			vl = -anguloDiferencial * ATENUAR;
+			vr = anguloDiferencial * ATENUAR;
 		}
 	}
 	else
@@ -393,7 +403,7 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 
 	robot->velocityLeft = vl;
 	robot->velocityRight = vr;
-
+			
 }
 
 void MirarPelota(Robot *robot, Environment *env)
