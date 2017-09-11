@@ -1,0 +1,88 @@
+//--------------------------------------------------------------------------------
+/**
+* Funcion: IrA
+* Parametros: 
+*   TIPO           NOMBRE   E/S DESCRIPCION
+*   -------------- -------- --- ---------------------------------------
+*   double   dXDestino E	Es el punto x de destino.
+*   double   dYDestino E	Es el punto y de destino.
+* Retorno: void
+* Descripción:
+*  Lleva el jugador a la posición de destino pasada como parámetro.
+**/
+void MNavegacionDif1::IrA(double dXDestino, double dYDestino, double dVelMax) 
+{
+	
+	double dAngAGirar = CalcularAnguloAGirar(m_prJugador->pos.x, m_prJugador->pos.y, 
+							dXDestino, dYDestino, m_prJugador->rotation);
+
+	
+	double t = ((cos(dAngAGirar) * cos(dAngAGirar)) * Signo(cos(dAngAGirar)));
+	double r = ((sin(dAngAGirar) * sin(dAngAGirar)) * Signo(sin(dAngAGirar)));
+	
+
+	double dVelIzq = dVelMax * (t - r);
+	double dVelDer = dVelMax * (t + r);
+
+	double dif = (dVelIzq - dVelDer);
+
+	double d = fabs(dif / (dVelMax * 2.0));
+
+	double f = (1 - d) + 0.11;
+
+
+	if ((dVelIzq * f) < 0) {
+		m_prJugador->velocityLeft = dVelDer * f;
+		m_prJugador->velocityRight = dVelIzq * f;
+	}
+	else {
+		m_prJugador->velocityLeft = dVelIzq * f;
+		m_prJugador->velocityRight = dVelDer * f;
+	}
+
+	
+}
+
+
+
+
+
+void MNavegacionDif1::Girar(double anguloAGirar) {
+
+	double vi, vd;
+
+	if (fabs(anguloAGirar) > 150) {
+		vi = 100;
+		vd = -100;
+	}
+	else if (fabs(anguloAGirar) > 100) {
+		vi = 75;
+		vd = -75;
+	}
+	else if (fabs(anguloAGirar) > 70) {
+		vi = 50;
+		vd = -50;
+	}
+	else if (fabs(anguloAGirar) > 40) {
+		vi = 20;
+		vd = -20;
+	}
+	else if (fabs(anguloAGirar) > 20) {
+		vi = 7;
+		vd = -7;
+	}
+	else {
+		vi = 4;
+		vd = -4;
+	}
+
+	if (anguloAGirar > 0) {
+		vi = (-1) * vi;
+		vd = (-1) * vd;
+	}
+	
+	m_prJugador->velocityLeft = vi;
+	m_prJugador->velocityRight = vd;
+
+
+}
