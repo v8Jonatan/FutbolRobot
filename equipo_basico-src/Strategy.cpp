@@ -247,26 +247,26 @@ void PlayNormal( Environment *env )
 void Arquero( Robot *robot, Environment *env )
 // Funcion principal de los movimientos del arquero
 {
-	double yball = env->predictedBall.pos.y;
-	double r = robot->rotation;
+	double Pelota_y = env->predictedBall.pos.y;
+	double rotacion = robot->rotation;
 	
-	while (r > 180)
-		r -= 360;
-	while (r < -180)
-		r += 360;
+	while (rotacion > 180)
+		rotacion -= 360;
+	while (rotacion < -180)
+		rotacion += 360;
 	
 
-	if (fabs(fabs(r)-90) < 5)
+	if ( fabs(fabs(rotacion) - 90) < 5 )
 	{
 		// Estoy apuntando mas o menos hacia arriba o abajo => avanzo o retrocedo
-		if (fabs(robot->pos.y - yball) < 1)
+		if ( fabs(robot->pos.y - Pelota_y) < 1 )
 		{
 			robot->velocityLeft = 0;
 			robot->velocityRight = 0;
 		}
 		else
 		{
-			if (robot->pos.y < yball)
+			if (robot->pos.y < Pelota_y)
 			{
 				if (robot->pos.y > GTOPY)
 				{
@@ -275,7 +275,7 @@ void Arquero( Robot *robot, Environment *env )
 				}
 				else
 				{
-					if (r > 0)		// Mira hacia arriba
+					if (rotacion > 0)		// Mira hacia arriba
 					{
 						robot->velocityLeft = MaxVel;
 						robot->velocityRight = MaxVel;
@@ -296,7 +296,7 @@ void Arquero( Robot *robot, Environment *env )
 				}
 				else
 				{
-					if (r > 0)		// Mira hacia arriba
+					if (rotacion > 0)		// Mira hacia arriba
 					{
 						robot->velocityLeft = -MaxVel;
 						robot->velocityRight = -MaxVel;
@@ -309,19 +309,19 @@ void Arquero( Robot *robot, Environment *env )
 				}
 			}
 		}
-	}
+	} 
 	else
 	{
 		// Ajusto orientacion
-		if (r > 0)   // Miro para arriba
+		if (rotacion > 0)   // Miro para arriba
 		{
-			robot->velocityLeft = -(90-r) * ATENUAR;
-			robot->velocityRight = (90-r) * ATENUAR;
+			robot->velocityLeft = -(90-rotacion) * ATENUAR;
+			robot->velocityRight = (90-rotacion) * ATENUAR;
 		}
 		else
 		{
-			robot->velocityLeft = (r+90) * ATENUAR;
-			robot->velocityRight = -(r+90) * ATENUAR;
+	 		robot->velocityLeft = (rotacion+90) * ATENUAR;
+			robot->velocityRight = -(rotacion+90) * ATENUAR;
 		}
 	}
 
@@ -331,10 +331,10 @@ void Arquero( Robot *robot, Environment *env )
 void Jugador( Robot *robot, Environment *env, bool masCerca )
 {
   
-  double Pelota_x, 
-    Pelota_y,
-    vl, 
-    vr,
+	double Pelota_x, 
+	Pelota_y,
+    velociodad_izquierda, 
+    velociodad_derecha,
     Robot_x,
     Robot_y;
 
@@ -342,12 +342,16 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 	{
 		Pelota_x = env->predictedBall.pos.x;
 		Pelota_y = env->predictedBall.pos.y;
+
 		if ( Pelota_y > FTOP - 2.5 ) 
 			 Pelota_y = FTOP - 2.5;
+
 		if ( Pelota_y < FBOT + 2.5 ) 
 			 Pelota_y = FBOT + 2.5;
+
 		if ( Pelota_x > FRIGHTX - 3 ) 
 			 Pelota_x = FRIGHTX - 3;
+
 		if ( Pelota_x < FLEFTX + 3 ) 
 			 Pelota_x = FLEFTX + 3;
 
@@ -355,23 +359,26 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 		Robot_y = robot->pos.y;
 		
 		double rotacion = robot->rotation;
+		
 		while (rotacion > 180)
 			rotacion -= 360;
+		
 		while (rotacion < -180)
 			rotacion += 360;
 
-		double angulo, 
-		  anguloDiferencial;
+		double	angulo, 
+				anguloDiferencial;
 
-		angulo = ObtenerAngulo(Robot_x,
-				    Robot_y,
-				    Pelota_x,
-				    Pelota_y);
+		angulo = ObtenerAngulo(	Robot_x,
+								Robot_y,
+								Pelota_x,
+								Pelota_y);
 
 		anguloDiferencial = angulo - rotacion;
 		// Normalizo a -180 a 180
 		if (anguloDiferencial > 180)
 			anguloDiferencial -= 360;
+
 		if (anguloDiferencial < -180)
 			anguloDiferencial += 360;
 
@@ -384,30 +391,30 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 			
 			// Estoy apuntando mas o menos hacia la pelota => voy hacia adelante
 
-			vl = MaxVel;
-			vr = MaxVel;
+			velociodad_izquierda = MaxVel;
+			velociodad_derecha = MaxVel;
 		}
 		else
 		{
 			// Ajusto orientacion
-			vl = -anguloDiferencial * ATENUAR;
-			vr = anguloDiferencial * ATENUAR;
+			velociodad_izquierda = -anguloDiferencial * ATENUAR;
+			velociodad_derecha = anguloDiferencial * ATENUAR;
 		}
 	}
 	else
 	{
 		// Si no es el mas cercano se queda quieto
-		vl = 0;
-		vr = 0;
+		velociodad_izquierda = 0;
+		velociodad_derecha = 0;
 	}
 
-	robot->velocityLeft = vl;
-	robot->velocityRight = vr;
+	robot->velocityLeft = velociodad_izquierda;
+	robot->velocityRight = velociodad_derecha;
 			
 }
 
 void MirarPelota(Robot *robot, Environment *env)
 {
-
+	
 }
 
