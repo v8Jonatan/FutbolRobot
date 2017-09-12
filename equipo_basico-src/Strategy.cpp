@@ -333,8 +333,8 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
   
 	double Pelota_x, 
 	Pelota_y,
-    velociodad_izquierda, 
-    velociodad_derecha,
+    velocidad_izquierda, 
+    velocidad_derecha,
     Robot_x,
     Robot_y;
 
@@ -391,25 +391,25 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 			
 			// Estoy apuntando mas o menos hacia la pelota => voy hacia adelante
 
-			velociodad_izquierda = MaxVel;
-			velociodad_derecha = MaxVel;
+			velocidad_izquierda = MaxVel;
+			velocidad_derecha = MaxVel;
 		}
 		else
 		{
 			// Ajusto orientacion
-			velociodad_izquierda = -anguloDiferencial * ATENUAR;
-			velociodad_derecha = anguloDiferencial * ATENUAR;
+			velocidad_izquierda = -anguloDiferencial * ATENUAR;
+			velocidad_derecha = anguloDiferencial * ATENUAR;
 		}
 	}
 	else
 	{
 		// Si no es el mas cercano se queda quieto
-		velociodad_izquierda = 0;
-		velociodad_derecha = 0;
+		velocidad_izquierda = 0;
+		velocidad_derecha = 0;
 	}
 
-	robot->velocityLeft = velociodad_izquierda;
-	robot->velocityRight = velociodad_derecha;
+	robot->velocityLeft = velocidad_izquierda;
+	robot->velocityRight = velocidad_derecha;
 			
 }
 
