@@ -53,7 +53,12 @@ void PredictBall ( Environment *env );
 void PlayNormal(Environment *env );
 void Arquero( Robot *robot, Environment *env );
 void Jugador( Robot *robot, Environment *env, bool masCerca );
-void MirarPelota(Robot *robot, Environment *env);
+void gotoxy(Robot *robot, double x,double y);
+
+void Velocity ( Robot *robot, int vl, int vr );
+void Angle ( Robot *robot, int desired_angle);
+
+void probando(Robot *robot,Environment *env);
 
 extern "C" STRATEGY_API void Create ( Environment *env )
 {	
@@ -86,7 +91,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 		PlayNormal(env);
 		break;
 	case PLACE_KICK:
-		PlayNormal(env);
+		//PlayNormal(env);
+		probando(&env->home[4], env);
 		break;
 	case PENALTY_KICK:
 		switch (env->whosBall)
@@ -242,6 +248,12 @@ void PlayNormal( Environment *env )
 	Jugador( &env->home[4], env, (masCerca == 4) );
 }
 
+void probando(Robot *robot,Environment *env)
+{
+		PredictBall ( env );		
+		gotoxy(robot,env->predictedBall.pos.x,env->predictedBall.pos.y);
+}
+
 
 
 void Arquero( Robot *robot, Environment *env )
@@ -384,13 +396,6 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 
 		if ( fabs(anguloDiferencial) < 15)
 		{
-			//************************************************************************
-			//	POR QUE NO DIRECTAMENTE HAGO QUE TODOS APUNTEN A LA PELOTA U OBJETIVO
-			//
-			//************************************************************************
-			
-			// Estoy apuntando mas o menos hacia la pelota => voy hacia adelante
-
 			velocidad_izquierda = MaxVel;
 			velocidad_derecha = MaxVel;
 		}
@@ -413,8 +418,96 @@ void Jugador( Robot *robot, Environment *env, bool masCerca )
 			
 }
 
-void MirarPelota(Robot *robot, Environment *env)
+void gotoxy(Robot *robot, double x,double y)
 {
+	int desired_angle = 0, theta_e = 0, d_angle = 0, vl, vr, vc = 70;
+
+	double dx, dy, d_e, Ka = 10.0/90.0;
+	dx = x - robot->pos.x;
+	dy = y - robot->pos.y;
+
+	d_e = sqrt(dx * dx + dy * dy);
+	if (dx == 0 && dy == 0)
+		desired_angle = 90;
+	else
+		desired_angle = (int)(180. / PI * atan2((double)(dy), (double)(dx)));
+	theta_e = desired_angle - (int)robot->rotation;
 	
+	while (theta_e > 180) theta_e -= 360;
+	while (theta_e < -180) theta_e += 360;
+
+	if (d_e > 100.) 
+		Ka = 17. / 90.;
+	else if (d_e > 50)
+		Ka = 19. / 90.;
+	else if (d_e > 30)
+		Ka = 21. / 90.;
+	else if (d_e > 20)
+		Ka = 23. / 90.;
+	else 
+		Ka = 25. / 90.;
+	
+	if (theta_e > 95 || theta_e < -95)
+	{
+		theta_e += 180;
+		
+		if (theta_e > 180) 
+			theta_e -= 360;
+		if (theta_e > 80)
+			theta_e = 80;
+		if (theta_e < -80)
+			theta_e = -80;
+		if (d_e < 5.0 && abs(theta_e) < 40)
+			Ka = 0.1;
+		vr = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
+		vl = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
+	}
+	
+	else if (theta_e < 85 && theta_e > -85)
+	{
+		if (d_e < 5.0 && abs(theta_e) < 40)
+			Ka = 0.1;
+		vr = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
+		vl = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
+	}
+
+	else
+	{
+		vr = (int)(+.17 * theta_e);
+		vl = (int)(-.17 * theta_e);
+	}
+
+	Velocity(robot, vl, vr);
 }
 
+// robot soccer system p329
+void Angle ( Robot *robot, int desired_angle)
+{
+	int theta_e, vl, vr;
+	theta_e = desired_angle - (int)robot->rotation;
+	
+	while (theta_e > 180) theta_e -= 360;
+	while (theta_e < -180) theta_e += 360;
+
+	if (theta_e < -90) theta_e += 180;
+	
+	else if (theta_e > 90) theta_e -= 180;
+
+	if (abs(theta_e) > 50) 
+	{
+		vl = (int)(-9./90.0 * (double) theta_e);
+		vr = (int)(9./90.0 * (double)theta_e);
+	}
+	else if (abs(theta_e) > 20)
+	{
+		vl = (int)(-11.0/90.0 * (double)theta_e);
+		vr = (int)(11.0/90.0 * (double)theta_e);
+	}
+	Velocity (robot, vl, vr);
+}
+
+void Velocity ( Robot *robot, int vl, int vr )
+{
+	robot->velocityLeft = vl;
+	robot->velocityRight = vr;
+}
