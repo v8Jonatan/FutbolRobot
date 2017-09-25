@@ -38,10 +38,14 @@ void Attack2 ( Robot *robot, Environment *env );
 void Defend ( Robot *robot, Environment *env, double low, double high );
 
 // by moon at 9/2/2002
-void MoonAttack (Robot *robot, Environment *env);
+void MoonAttack (Robot *robot, Environment *env,int numero);
 // just for testing to check whether the &env->opponent works or not
 void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent );
 
+bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y);
+bool estoyAbajoXY(Robot *robot,double x,double y);
+bool estoyIzquierdaXY(Robot *robot,double x,double y);
+void irAlLadoInversoXY(Robot *robot,double x, double y);
 
 void Velocity ( Robot *robot, int vl, int vr );
 void Angle ( Robot *robot, int desired_angle);
@@ -60,7 +64,6 @@ extern "C" STRATEGY_API void Destroy ( Environment *env )
 	// eg. if ( env->userData != NULL ) delete ( MyVariables * ) env->userData;
 }
 
-
 extern "C" STRATEGY_API void Strategy ( Environment *env )
 {
 
@@ -77,8 +80,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
 			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
 			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
-			MoonAttack ( &env->home [3], env );
-			MoonAttack ( &env->home [4], env );
+			MoonAttack ( &env->home [3], env , 3);
+			MoonAttack ( &env->home [4], env , 4);
 			Goalie1 ( &env->home [0], env );
 
 			break;
@@ -91,8 +94,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
 
 			// attack
-			MoonAttack ( &env->home [3], env );
-			MoonAttack ( &env->home [4], env );
+			MoonAttack ( &env->home [3], env , 3);
+			MoonAttack ( &env->home [4], env , 4);
 
 			// Goal keeper
 			Goalie1 ( &env->home [0], env );
@@ -106,19 +109,19 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			break;
 
 		case PLACE_KICK:
-			MoonAttack ( &env->home [2], env );
+			MoonAttack ( &env->home [2], env, 2);
 			break;			
 		case PENALTY_KICK:
 			switch (env->whosBall)
 			{
 			case ANYONES_BALL:
-				MoonAttack ( &env->home [1], env );
+				MoonAttack ( &env->home [1], env,1 );
 				break;
 			case BLUE_BALL:
-				MoonAttack ( &env->home [4], env );
+				MoonAttack ( &env->home [4], env,4 );
 				break;
 			case YELLOW_BALL:
-				MoonAttack ( &env->home [0], env );
+				MoonAttack ( &env->home [0], env,0 );
 				break;
 			}
 			break;
@@ -135,34 +138,80 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			
 			fclose(debugfile); 
 
-			MoonAttack ( &env->home [0], env );
+			MoonAttack ( &env->home [0], env, 0 );
 
 			break;
 
 		case GOAL_KICK:
-			MoonAttack ( &env->home [0], env );
+			MoonAttack ( &env->home [0], env,0 );
 			break;
   }
 }
 
 
 
+bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y){
+	double robot_distancia = Distancia_2Pts(robot->pos.x, x, robot->pos.y, y);
+	double otro_distancia = Distancia_2Pts(otro->pos.x, x, robot->pos.y, y);
+	return robot_distancia < otro_distancia;
+}
+bool estoyAbajoXY(Robot *robot,double x,double y){
+	return robot->pos.x > x - 4 && robot->pos.x < x + 4 && robot->pos.y < y;
 
-void MoonAttack ( Robot *robot, Environment *env )
+}
+
+bool estoyIzquierdaXY(Robot *robot,double x,double y){
+	return robot->pos.x > x - 30 && robot->pos.x < y + 30 && robot->pos.x < x;
+}
+void irAlLadoInversoXY(Robot *robot,double x, double y){
+	double pos_x = robot->pos.x;
+	double pos_y = robot->pos.y;
+		if (pos_x < x){
+			//mover a la derecha
+				if (pos_y < y - 5 || pos_y > y + 5 ) 
+					// voy directo
+						Position(robot, x+15, y);
+				if(pos_x + 15 >= LIMITE_SUPERIOR_CAMPO)	
+					// voy por abajo
+					Position(robot, x+15, y);
+				else 
+					//voy por arriba
+					Position(robot, x+15, y);
+		}else 
+			// mover a la izquierda
+			Position(robot, x-15, y);
+}
+
+void MoonAttack ( Robot *robot, Environment *env,int numero )
 {
+	numero = numero == 3? 4: 3;
+	int zonaPelota;
 	//Velocity (robot, 127, 127);
 	//Angle (robot, 45);
 	PredictBall ( env );
+	double ball_x = env->currentBall.pos.x;
+	double ball_y = env->currentBall.pos.y;
 	//Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
-	if (robot->pos.y > env->currentBall.pos.y - 8 && robot->pos.y < env->currentBall.pos.y + 8)
-	{
-		if (env->home)
-
-		Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+	//if (robot->pos.y > ball_y - 8 && robot->pos.y < ball_y + 8){
+	if (estoyMasCercaToXY(robot, &env->home[numero],ball_x,ball_y)){
+		zonaPelota = Zona(ball_x,ball_y);
+		if(zonaPelota == 1 || zonaPelota == 2 || zonaPelota == 7 || zonaPelota == 8 ){
+			if (estoyAbajoXY(robot,ball_x,ball_y))
+				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+			else
+				Position(robot, env->predictedBall.pos.x ,env->currentBall.pos.y - 15);
+		}
+		else if(ZonaReal(ball_x,ball_y) > 6){
+			if (estoyIzquierdaXY(robot,ball_x,ball_y))
+				Position(robot, env->predictedBall.pos.x+15 ,env->currentBall.pos.y - 15);
+			else
+				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+		}
+		else
+			Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
 	}
-	else{
-		Position(robot, robot->pos.x ,env->predictedBall.pos.y);
-	}
+	else
+		Position(robot, env->predictedBall.pos.x + 10,env->predictedBall.pos.y);
 	// Position(robot, 0.0, 0.0);
 }
 
