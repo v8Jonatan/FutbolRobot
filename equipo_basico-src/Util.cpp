@@ -351,7 +351,7 @@ double CalcularAngulo2Pts(double xo, double yo, double xf, double yf)
 	else {
 		alfa = atan(fabs(dy) / fabs(dx));
 
-		alfa = Rad2Deg(alfa);
+		alfa = radToDeg(alfa);
 		
 		if ((dx > 0) && (dy > 0))
 			alfa = alfa;
@@ -564,7 +564,7 @@ double CalcularAngulo2Pts180(double xo, double yo, double xf, double yf)
 	else {
 		alfa = atan(fabs(dy) / fabs(dx));
 
-		alfa = Rad2Deg(alfa);
+		alfa = radToDeg(alfa);
 		
 		if ((dx > 0) && (dy > 0))
 			alfa = alfa;

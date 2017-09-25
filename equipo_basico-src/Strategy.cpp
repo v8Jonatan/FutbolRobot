@@ -7,7 +7,7 @@
 #include "Util.h"
 //#include <Util.h>
 #include <math.h>
-
+#include "Const.h"
 
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  ul_reason_for_call, 
@@ -27,7 +27,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 
 
-const double PI = 3.1415923;
+//const double PI = 3.1415923;
 
 char myMessage[200]; //big enough???
 
@@ -38,7 +38,7 @@ void Attack2 ( Robot *robot, Environment *env );
 void Defend ( Robot *robot, Environment *env, double low, double high );
 
 // by moon at 9/2/2002
-void MoonAttack (Robot *robot, Environment *env,int id );
+void MoonAttack (Robot *robot, Environment *env);
 // just for testing to check whether the &env->opponent works or not
 void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent );
 
@@ -148,7 +148,7 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 
 
 
-void MoonAttack ( Robot *robot, Environment *env,int id )
+void MoonAttack ( Robot *robot, Environment *env )
 {
 	//Velocity (robot, 127, 127);
 	//Angle (robot, 45);
