@@ -22,403 +22,172 @@ BOOL APIENTRY DllMain( HANDLE hModule,
     return TRUE;
 }
 
-#define ATENUAR 0.5
 
-// gameState
-const long PLAY = 0;	// Partido
-const long FREE_BALL = 1;
-const long PLACE_KICK = 2;
-const long PENALTY_KICK = 3;
-const long FREE_KICK = 4;
-const long GOAL_KICK = 5;
 
-// whosBall
-const long ANYONES_BALL = 0;
-const long BLUE_BALL = 1;
-const long YELLOW_BALL = 2;
+const double PI = 3.1415923;
 
-// global variables -- Useful field positions ... maybe???
-const double FTOP = 77.2392;
-const double FBOT = 6.3730;
-const double GTOPY = 49.6801;
-const double GBOTY = 33.9320;
-const double GRIGHT = 97.3632;
-const double GLEFT = 2.8748;
-const double FRIGHTX = 93.4259;
-const double FLEFTX = 6.8118;
-
-#define MaxVel	125
+char myMessage[200]; //big enough???
 
 void PredictBall ( Environment *env );
-void PlayNormal(Environment *env );
-void Arquero( Robot *robot, Environment *env );
-void Jugador( Robot *robot, Environment *env, bool masCerca );
-void gotoxy(Robot *robot, double x,double y);
+void Goalie1 ( Robot *robot, Environment *env );
+void NearBound2 ( Robot *robot, double vl, double vr, Environment *env );
+void Attack2 ( Robot *robot, Environment *env );
+void Defend ( Robot *robot, Environment *env, double low, double high );
+
+// by moon at 9/2/2002
+void MoonAttack (Robot *robot, Environment *env );
+// just for testing to check whether the &env->opponent works or not
+void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent );
+
 
 void Velocity ( Robot *robot, int vl, int vr );
 void Angle ( Robot *robot, int desired_angle);
-
-void probando(Robot *robot,Environment *env);
+void Position( Robot *robot, double x, double y );
 
 extern "C" STRATEGY_API void Create ( Environment *env )
-{	
+{
 	// allocate user data and assign to env->userData
 	// eg. env->userData = ( void * ) new MyVariables ();
 }
 
-// --------------------------------------------------------------------------------------------
-
 extern "C" STRATEGY_API void Destroy ( Environment *env )
-
 {
 	// free any user data created in Create ( Environment * )
 
 	// eg. if ( env->userData != NULL ) delete ( MyVariables * ) env->userData;
 }
 
-// --------------------------------------------------------------------------------------------
 
 extern "C" STRATEGY_API void Strategy ( Environment *env )
 {
-	PredictBall ( env );
+
+	// the below codes are just for demonstration purpose....don't take this seriously please.
+
+	int testInt = 100;
+	int k;
 
 	switch (env->gameState)
 	{
-	case PLAY:
-		PlayNormal(env);
-		break;
-	case FREE_BALL:
-		PlayNormal(env);
-		break;
-	case PLACE_KICK:
-		//PlayNormal(env);
-		probando(&env->home[4], env);
-		break;
-	case PENALTY_KICK:
-		switch (env->whosBall)
-		{
-		case ANYONES_BALL:
-			PlayNormal(env);
+		case 0:
+			// default
+
+			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
+			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
+			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
+			MoonAttack ( &env->home [3], env );
+			MoonAttack ( &env->home [4], env );
+			Goalie1 ( &env->home [0], env );
+
 			break;
-		case BLUE_BALL:
-			PlayNormal(env);
+
+		case FREE_BALL:
+
+			// Follow opponent guy
+			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
+			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
+			MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
+
+			// attack
+			MoonAttack ( &env->home [4], env );
+
+			// Goal keeper
+			Goalie1 ( &env->home [0], env );
+
+			// by moon at 24/03/2002
+			// below code will not work.... never try....
+			//	env->home[0].pos.x = 50;
+			//	env->home[0].pos.y = 0;
+			//	env->home[0].rotation = 20.0;
+
 			break;
-		case YELLOW_BALL:
-			PlayNormal(env);
-			break;
-		}
-		break;
-	case FREE_KICK:
-		switch (env->whosBall)
-		{
-		case ANYONES_BALL:
-			PlayNormal(env);
-			break;
-		case BLUE_BALL:
-			PlayNormal(env);
-			break;
-		case YELLOW_BALL:
-			PlayNormal(env);
-			break;
-		}
-		break;
-	case GOAL_KICK:
-		switch (env->whosBall)
-		{
-		case ANYONES_BALL:
-			PlayNormal(env);
-			break;
-		case BLUE_BALL:
-			PlayNormal(env);
-			break;
-		case YELLOW_BALL:
-			PlayNormal(env);
-			break;
-		}
-		break;
-	}
-	
-	sprintf(myMessage, " ");
-	env->display = myMessage; 
 
-}
-
-
-
-//------------------------------------------------------------------------------------------------
-
-void PredictBall ( Environment *env )
-{
-	double dx = env->currentBall.pos.x - env->lastBall.pos.x;
-	double dy = env->currentBall.pos.y - env->lastBall.pos.y;
-	env->predictedBall.pos.x = env->currentBall.pos.x + dx;
-	env->predictedBall.pos.y = env->currentBall.pos.y + dy;
-
-}
-
-//------------------------------------------------------------------------------------------------
-
-double ObtenerAngulo( double x0, double y0, double xf, double yf )
-{
-	double dx, dy, r, alfa;
-
-	dx = xf-x0;
-	dy = yf-y0;
-
-	if (dx == 0 && dy == 0)
-		alfa = 0;
-	else
-	{
-		if (dx == 0)
-		{
-			if (dy > 0)
-				alfa = 90;
-			else
-				alfa = -90;
-		}
-		else
-			if (dy == 0)
+		case PLACE_KICK:
+			MoonAttack ( &env->home [2], env );
+			break;			
+		case PENALTY_KICK:
+			switch (env->whosBall)
 			{
-				if (dx > 0)
-					alfa = 0;
-				else
-					alfa = 180;
+			case ANYONES_BALL:
+				MoonAttack ( &env->home [1], env );
+				break;
+			case BLUE_BALL:
+				MoonAttack ( &env->home [4], env );
+				break;
+			case YELLOW_BALL:
+				MoonAttack ( &env->home [0], env );
+				break;
 			}
-			else
-			{
-				// dx y dy != 0
-				if (dx > 0)
-					r = atan(fabs(dy) / fabs(dx));
-				else
-					r = atan(fabs(dx) / fabs(dy));
-				alfa = Rad2Deg(r);
-				if(dx < 0)
-					alfa += 90;
-				if (dy < 0)
-					alfa *= -1;
-			}
-	}
+			break;
 
-	return alfa;
-}
+		case FREE_KICK:
 
-
-// =====================================================================
-// J U G A D A S   E S P E C I A L E S		//K27
-// =====================================================================
-
-void PlayNormal( Environment *env )
-{
-	int masCerca,
-		i;
-	double distMin,
-		   predictedBall_X,
-		   predictedBall_Y,
-		   dist;
-
-	masCerca = 1;
-	
-	predictedBall_X = env->predictedBall.pos.x; 
-	predictedBall_Y = env->predictedBall.pos.y;
-
-
-	distMin = Distancia(env->home[1].pos.x,
-		                env->home[1].pos.y,
-						predictedBall_X,
-						predictedBall_Y);
-	
-	for(i=2; i<5; i++)
-	{
-		dist = Distancia(
-			             env->home[i].pos.x,
-			             env->home[i].pos.y,
-						 predictedBall_X,
-						 predictedBall_Y);
-		if (dist < distMin)
-		{
-			masCerca = i;
-			distMin = dist;
-		}
-	}
-
-	Arquero( &env->home[0], env );
-	Jugador( &env->home[1], env, (masCerca == 1) );
-	Jugador( &env->home[2], env, (masCerca == 2) );
-	Jugador( &env->home[3], env, (masCerca == 3) );
-	Jugador( &env->home[4], env, (masCerca == 4) );
-}
-
-void probando(Robot *robot,Environment *env)
-{
-		PredictBall ( env );		
-		gotoxy(robot,env->predictedBall.pos.x,env->predictedBall.pos.y);
-}
-
-
-
-void Arquero( Robot *robot, Environment *env )
-// Funcion principal de los movimientos del arquero
-{
-	double Pelota_y = env->predictedBall.pos.y;
-	double rotacion = robot->rotation;
-	
-	while (rotacion > 180)
-		rotacion -= 360;
-	while (rotacion < -180)
-		rotacion += 360;
-	
-
-	if ( fabs(fabs(rotacion) - 90) < 5 )
-	{
-		// Estoy apuntando mas o menos hacia arriba o abajo => avanzo o retrocedo
-		if ( fabs(robot->pos.y - Pelota_y) < 1 )
-		{
-			robot->velocityLeft = 0;
-			robot->velocityRight = 0;
-		}
-		else
-		{
-			if (robot->pos.y < Pelota_y)
-			{
-				if (robot->pos.y > GTOPY)
-				{
-					robot->velocityLeft = 0;
-					robot->velocityRight = 0;
-				}
-				else
-				{
-					if (rotacion > 0)		// Mira hacia arriba
-					{
-						robot->velocityLeft = MaxVel;
-						robot->velocityRight = MaxVel;
-					}
-					else
-					{
-						robot->velocityLeft = -MaxVel;
-						robot->velocityRight = -MaxVel;
-					}
-				}
-			}
-			else
-			{
-				if (robot->pos.y < GBOTY)
-				{
-					robot->velocityLeft = 0;
-					robot->velocityRight = 0;
-				}
-				else
-				{
-					if (rotacion > 0)		// Mira hacia arriba
-					{
-						robot->velocityLeft = -MaxVel;
-						robot->velocityRight = -MaxVel;
-					}
-					else
-					{
-						robot->velocityLeft = MaxVel;
-						robot->velocityRight = MaxVel;
-					}
-				}
-			}
-		}
-	} 
-	else
-	{
-		// Ajusto orientacion
-		if (rotacion > 0)   // Miro para arriba
-		{
-			robot->velocityLeft = -(90-rotacion) * ATENUAR;
-			robot->velocityRight = (90-rotacion) * ATENUAR;
-		}
-		else
-		{
-	 		robot->velocityLeft = (rotacion+90) * ATENUAR;
-			robot->velocityRight = -(rotacion+90) * ATENUAR;
-		}
-	}
-
-}
-
-
-void Jugador( Robot *robot, Environment *env, bool masCerca )
-{
-  
-	double Pelota_x, 
-	Pelota_y,
-    velocidad_izquierda, 
-    velocidad_derecha,
-    Robot_x,
-    Robot_y;
-
-  if (masCerca)
-	{
-		Pelota_x = env->predictedBall.pos.x;
-		Pelota_y = env->predictedBall.pos.y;
-
-		if ( Pelota_y > FTOP - 2.5 ) 
-			 Pelota_y = FTOP - 2.5;
-
-		if ( Pelota_y < FBOT + 2.5 ) 
-			 Pelota_y = FBOT + 2.5;
-
-		if ( Pelota_x > FRIGHTX - 3 ) 
-			 Pelota_x = FRIGHTX - 3;
-
-		if ( Pelota_x < FLEFTX + 3 ) 
-			 Pelota_x = FLEFTX + 3;
-
-		Robot_x = robot->pos.x;
-		Robot_y = robot->pos.y;
-		
-		double rotacion = robot->rotation;
-		
-		while (rotacion > 180)
-			rotacion -= 360;
-		
-		while (rotacion < -180)
-			rotacion += 360;
-
-		double	angulo, 
-				anguloDiferencial;
-
-		angulo = ObtenerAngulo(	Robot_x,
-								Robot_y,
-								Pelota_x,
-								Pelota_y);
-
-		anguloDiferencial = angulo - rotacion;
-		// Normalizo a -180 a 180
-		if (anguloDiferencial > 180)
-			anguloDiferencial -= 360;
-
-		if (anguloDiferencial < -180)
-			anguloDiferencial += 360;
-
-		if ( fabs(anguloDiferencial) < 15)
-		{
-			velocidad_izquierda = MaxVel;
-			velocidad_derecha = MaxVel;
-		}
-		else
-		{
-			// Ajusto orientacion
-			velocidad_izquierda = -anguloDiferencial * ATENUAR;
-			velocidad_derecha = anguloDiferencial * ATENUAR;
-		}
-	}
-	else
-	{
-		// Si no es el mas cercano se queda quieto
-		velocidad_izquierda = 0;
-		velocidad_derecha = 0;
-	}
-
-	robot->velocityLeft = velocidad_izquierda;
-	robot->velocityRight = velocidad_derecha;
+			FILE * debugfile; 
+			debugfile = fopen("debugfile.txt","a"); 
 			
+			for (k=0;k<=4;k++) 
+				fprintf(debugfile, "robot: %d x: %f y: %f z: %f \n",
+					k, env->opponent[k].pos.x, env->opponent[k].pos.y, 
+					env->opponent[k].pos.z); 
+			
+			fclose(debugfile); 
+
+			MoonAttack ( &env->home [0], env );
+
+			break;
+
+		case GOAL_KICK:
+			MoonAttack ( &env->home [0], env );
+			break;
+  }
 }
 
-void gotoxy(Robot *robot, double x,double y)
+void MoonAttack ( Robot *robot, Environment *env )
+{
+	//Velocity (robot, 127, 127);
+	//Angle (robot, 45);
+	PredictBall ( env );
+	Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	// Position(robot, 0.0, 0.0);
+}
+
+void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent )
+{
+	Position(robot, opponent->pos.x, opponent->pos.y);
+}
+
+void Velocity ( Robot *robot, int vl, int vr )
+{
+	robot->velocityLeft = vl;
+	robot->velocityRight = vr;
+}
+
+// robot soccer system p329
+void Angle ( Robot *robot, int desired_angle)
+{
+	int theta_e, vl, vr;
+	theta_e = desired_angle - (int)robot->rotation;
+	
+	while (theta_e > 180) theta_e -= 360;
+	while (theta_e < -180) theta_e += 360;
+
+	if (theta_e < -90) theta_e += 180;
+	
+	else if (theta_e > 90) theta_e -= 180;
+
+	if (abs(theta_e) > 50) 
+	{
+		vl = (int)(-9./90.0 * (double) theta_e);
+		vr = (int)(9./90.0 * (double)theta_e);
+	}
+	else if (abs(theta_e) > 20)
+	{
+		vl = (int)(-11.0/90.0 * (double)theta_e);
+		vr = (int)(11.0/90.0 * (double)theta_e);
+	}
+	Velocity (robot, vl, vr);
+}
+
+void Position( Robot *robot, double x, double y )
 {
 	int desired_angle = 0, theta_e = 0, d_angle = 0, vl, vr, vc = 70;
 
@@ -480,34 +249,242 @@ void gotoxy(Robot *robot, double x,double y)
 	Velocity(robot, vl, vr);
 }
 
-// robot soccer system p329
-void Angle ( Robot *robot, int desired_angle)
+
+void PredictBall ( Environment *env )
 {
-	int theta_e, vl, vr;
-	theta_e = desired_angle - (int)robot->rotation;
-	
-	while (theta_e > 180) theta_e -= 360;
-	while (theta_e < -180) theta_e += 360;
+	double dx = env->currentBall.pos.x - env->lastBall.pos.x;
+	double dy = env->currentBall.pos.y - env->lastBall.pos.y;
+	env->predictedBall.pos.x = env->currentBall.pos.x + dx;
+	env->predictedBall.pos.y = env->currentBall.pos.y + dy;
 
-	if (theta_e < -90) theta_e += 180;
-	
-	else if (theta_e > 90) theta_e -= 180;
-
-	if (abs(theta_e) > 50) 
-	{
-		vl = (int)(-9./90.0 * (double) theta_e);
-		vr = (int)(9./90.0 * (double)theta_e);
-	}
-	else if (abs(theta_e) > 20)
-	{
-		vl = (int)(-11.0/90.0 * (double)theta_e);
-		vr = (int)(11.0/90.0 * (double)theta_e);
-	}
-	Velocity (robot, vl, vr);
 }
 
-void Velocity ( Robot *robot, int vl, int vr )
+void Goalie1 ( Robot *robot, Environment *env )
 {
+	double velocityLeft = 0, velocityRight = 0;
+	
+	double Tx = env->goalBounds.right - env->currentBall.pos.x;
+	double Ty = env->fieldBounds.top - env->currentBall.pos.y;
+
+	double Ax = env->goalBounds.right - robot->pos.x;
+	double Ay = env->fieldBounds.top - robot->pos.y;
+
+	if ( Ay > Ty + 0.9 && Ay > 27 )
+	{
+		velocityLeft = -100;
+		velocityRight = -100;
+	}
+
+	if ( Ay > Ty - 0.9 && Ay < 43 )
+	{
+		velocityLeft = 100;
+		velocityRight = 100;
+	}
+
+	if ( Ay < 27 )
+	{
+		velocityLeft = 100;
+		velocityRight = 100;
+	}
+
+	if ( Ay > 43 )
+	{
+		velocityLeft = -100;
+		velocityRight = -100;
+	}
+
+	double Tr = robot->rotation;
+	if ( Tr < 0.001 )
+		Tr = Tr + 360;
+	if ( Tr > 360.001 )
+		Tr = Tr - 360;
+	if ( Tr > 270.5 )
+		velocityRight = velocityRight + fabs ( Tr - 270 );
+	else if ( Tr < 269.5 )
+		velocityLeft = velocityLeft + fabs ( Tr - 270 );
+
+	robot->velocityLeft = velocityLeft;
+	robot->velocityRight = velocityRight;
+}
+
+
+
+void Attack2 ( Robot *robot, Environment *env )
+{
+	Vector3D t = env->currentBall.pos;
+	double r = robot->rotation;
+	if ( r < 0 ) r += 360;
+	if ( r > 360 ) r -= 360;
+	double vl = 0, vr = 0;
+
+	if ( t.y > env->fieldBounds.top - 2.5 ) t.y = env->fieldBounds.top - 2.5;
+	if ( t.y < env->fieldBounds.bottom + 2.5 ) t.y = env->fieldBounds.bottom + 2.5;
+	if ( t.x > env->fieldBounds.right - 3 ) t.x = env->fieldBounds.right - 3;
+	if ( t.x < env->fieldBounds.left + 3 ) t.x = env->fieldBounds.left + 3;
+
+	double dx = robot->pos.x - t.x;
+	double dy = robot->pos.y - t.y;
+
+	double dxAdjusted = dx;
+	double angleToPoint = 0;
+
+	if ( fabs ( robot->pos.y - t.y ) > 7 || t.x > robot->pos.x )
+		dxAdjusted -= 5;
+
+	if ( dxAdjusted == 0 )
+	{
+		if ( dy > 0 )
+			angleToPoint = 270;
+		else
+			angleToPoint = 90;
+	}
+	else if ( dy == 0 )
+	{
+		if ( dxAdjusted > 0 )
+			angleToPoint = 360;
+		else
+			angleToPoint = 180;
+		
+	}
+	else
+		angleToPoint = atan ( fabs ( dy / dx ) ) * 180.0 / PI;
+
+	if ( dxAdjusted > 0 )
+	{
+		if ( dy > 0 )
+			angleToPoint -= 180;
+		else if ( dy < 0 )
+			angleToPoint = 180 - angleToPoint;
+	}
+	if ( dxAdjusted < 0 )
+	{
+		if ( dy > 0 )
+			angleToPoint = - angleToPoint;
+		else if ( dy < 0 )
+			angleToPoint = 90 - angleToPoint;
+	}
+
+	if ( angleToPoint < 0 ) angleToPoint = angleToPoint + 360;
+	if ( angleToPoint > 360 ) angleToPoint = angleToPoint - 360;
+	if ( angleToPoint > 360 ) angleToPoint = angleToPoint - 360;
+
+	double c = r;
+
+	double angleDiff = fabs ( r - angleToPoint );
+
+	if ( angleDiff < 40 )
+	{
+		vl = 100;
+		vr = 100;
+		if ( c > angleToPoint )
+			vl -= 10;
+		if ( c < angleToPoint )
+			vr -= 10;
+	}
+	else
+	{
+		if ( r > angleToPoint )
+		{
+			if ( angleDiff > 180 )
+				vl += 360 - angleDiff;
+			else
+				vr += angleDiff;
+		}
+		if ( r < angleToPoint )
+		{
+			if ( angleDiff > 180 )
+				vr += 360 - angleDiff;
+			else
+				vl += angleDiff;
+		}
+	}
+
+	NearBound2 ( robot, vl, vr, env );
+}
+
+void NearBound2 ( Robot *robot, double vl, double vr, Environment *env )
+{
+	//Vector3D t = env->currentBall.pos;
+
+	Vector3D a = robot->pos;
+	double r = robot->rotation;
+
+	if ( a.y > env->fieldBounds.top - 15 && r > 45 && r < 130 )
+	{
+		if ( vl > 0 )
+			vl /= 3;
+		if ( vr > 0 )
+			vr /= 3;
+	}
+
+	if ( a.y < env->fieldBounds.bottom + 15 && r < -45 && r > -130 )
+	{
+		if ( vl > 0 ) vl /= 3;
+		if ( vr > 0 ) vr /= 3;
+	}
+
+	if ( a.x > env->fieldBounds.right - 10 )
+	{
+		if ( vl > 0 )
+			vl /= 2;
+		if ( vr > 0 )
+			vr /= 2;
+	}
+
+	if ( a.x < env->fieldBounds.left + 10 )
+	{
+		if ( vl > 0 )
+			vl /= 2;
+		if ( vr > 0 )
+			vr /= 2;
+	}
+
 	robot->velocityLeft = vl;
 	robot->velocityRight = vr;
+}
+
+void Defend ( Robot *robot, Environment *env, double low, double high )
+{
+	double vl = 0, vr = 0;
+	Vector3D z = env->currentBall.pos;
+
+	double Tx = env->goalBounds.right - z.x;
+	double Ty = env->fieldBounds.top - z.y;
+	Vector3D a = robot->pos;
+	a.x = env->goalBounds.right - a.x;
+	a.y = env->fieldBounds.top - a.y;
+
+	if ( a.y > Ty + 0.9 && a.y > low )
+	{
+		vl = -100;
+		vr = -100;
+	}
+	if ( a.y < Ty - 0.9 && a.y < high )
+	{
+		vl = 100;
+		vr = 100;
+	}
+	if ( a.y < low )
+	{
+		vl = 100;
+		vr = 100;
+	}
+	if ( a.y > high )
+	{
+		vl = -100;
+		vr = -100;
+	}
+
+	double Tr = robot->rotation;
+
+	if ( Tr < 0.001 )
+		Tr += 360;
+	if ( Tr > 360.001 )
+		Tr -= 360;
+	if ( Tr > 270.5 )
+		vr += fabs ( Tr - 270 );
+	else if ( Tr < 269.5 )
+		vl += fabs ( Tr - 270 );
+
+	NearBound2 ( robot, vl ,vr, env );
 }
