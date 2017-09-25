@@ -7,6 +7,8 @@
 #include "Strategy.h"
 
 
+
+
 // Devuelve el ángulo a girar por un jugador para queda mirando a la posición xf yf.
 double CalcularAnguloAGirar2(double x0,double y0, double xf, double yf, double rr);
 
@@ -15,14 +17,14 @@ double CalcularAngulo2Pts2(double x0, double y0, double xf, double yf);
 
 
 // Deveulve el ángulo en grados pasado como parámetro en radianes.
-double Deg2Rad(double dAngGrados);
+double DegtwoRad (double dAngGrados);
 
 // Deveulve el ángulo en radianes pasado como parámetro en grados.
-double Rad2Deg(double dAngRad);
+double RadtwoDeg(double dAngRad);
 
 
 // Calcula la distancia entre dos puntos.
-double Distancia(double x0,double y0,double xf,double yf);
+double Distancia2(double x0,double y0,double xf,double yf);
 
 // Devuelve el menor de los dos valores pasados como parámetros.
 double Menor(double a, double b);
@@ -35,6 +37,9 @@ int Signo(double n);
 
 // Devuelve el número de zona en donde se encuentra el punto pasado como parámetro.
 int Zona (double x, double y);
+
+int ZonaReal(double x, double y);
+
 
 
 double CalcularAngulo2Pts(double xo, double yo, double xf, double yf);

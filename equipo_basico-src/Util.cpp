@@ -2,10 +2,9 @@
 
 #include "stdafx.h"
 #include "Util.h"
-
+//#include "Strategy.h"
 #include <math.h>
-#include <fstream.h>
-
+//#include <fstream.h>
 #include "Const.h"
 
 
@@ -80,14 +79,14 @@ double CalcularAngulo2Pts2(double x0, double y0, double xf, double yf)
 
 //-------------------------------------------------------------------------------------------
 // Deveulve el ángulo en grados pasado como parámetro en radianes.
-double Deg2Rad(double dAngGrados)
+double DegtwoRad(double dAngGrados)
 {
 	return dAngGrados * (PI / 180.0);
 }
 
 //-------------------------------------------------------------------------------------------
 // Deveulve el ángulo en radianes pasado como parámetro en grados.
-double Rad2Deg(double dAngRad)
+double RadtwoDeg(double dAngRad)
 {
 	return dAngRad * (180.0 / PI);
 }
@@ -95,7 +94,7 @@ double Rad2Deg(double dAngRad)
 
 //-------------------------------------------------------------------------------------------
 // Calcula la distancia entre dos puntos.
-double Distancia(double x0,double y0,double xf,double yf) 
+double Distancia2(double x0,double y0,double xf,double yf) 
 {
 
 	double dist_x = xf - x0;;
@@ -128,7 +127,39 @@ int Signo(double n)
 	return (int)(n == 0 ? 0 : (n / fabs(n)));
 }
 
+int ZonaReal(double x, double y){
 
+	if ( x > ARCO_LINEA_DE_ATRAS_IZQUIERDA && x < LIMITE_IZQUIERDO_CAMPO 
+		&& y > ARCO_LINEA_INFERIOR && y < ARCO_LINEA_SUPERIOR)
+		return 1;
+	else if ( x < ARCO_LINEA_DE_ATRAS_DERECHA && x > LIMITE_DERECHO_CAMPO 
+		&& y > ARCO_LINEA_INFERIOR && y < ARCO_LINEA_SUPERIOR)
+		return 10;
+	else if ( x > LIMITE_IZQUIERDO_CAMPO && x <  AREA_CHICA_LINEA_IZQUIERDA 
+	&& y > AREA_CHICA_LINEA_INFERIOR && y < AREA_CHICA_LINEA_SUPERIOR )
+		return 2;
+	else if ( x < LIMITE_DERECHO_CAMPO && x >  AREA_CHICA_LINEA_DERECHA
+	&& y > AREA_CHICA_LINEA_INFERIOR && y < AREA_CHICA_LINEA_SUPERIOR )
+		return 9;
+	else if ( x > AREA_CHICA_LINEA_IZQUIERDA && x <  AREA_GRANDE_LINEA_IZQUIERDA 
+		&& y > AREA_GRANDE_LINEA_INFERIOR && y < AREA_GRANDE_LINEA_SUPERIOR )
+		return 3;
+	else if ( x < AREA_CHICA_LINEA_DERECHA && x >  AREA_GRANDE_LINEA_DERECHA
+	&& y > AREA_GRANDE_LINEA_INFERIOR && y < AREA_GRANDE_LINEA_SUPERIOR )
+		return 8;
+	else if ( x > AREA_GRANDE_LINEA_IZQUIERDA && x <  MITAD_DE_CANCHA_IZQUIERDA_EN_X 
+		&& y > LIMITE_INFERIOR_CAMPO && y < LIMITE_SUPERIOR_CAMPO )
+		return 4;
+	else if ( x < AREA_GRANDE_LINEA_DERECHA && x >  MITAD_DE_CANCHA_DERECHA_EN_X
+	&& y > LIMITE_INFERIOR_CAMPO && y < LIMITE_SUPERIOR_CAMPO )
+		return 7;
+	else if ( x > MITAD_DE_CANCHA_IZQUIERDA_EN_X && x <  MITAD_DE_CANCHA_EN_X 
+		&& y > LIMITE_INFERIOR_CAMPO && y < LIMITE_SUPERIOR_CAMPO )
+		return 5;
+	else if ( x < MITAD_DE_CANCHA_DERECHA_EN_X && x >  MITAD_DE_CANCHA_EN_X
+	&& y > LIMITE_INFERIOR_CAMPO && y < LIMITE_SUPERIOR_CAMPO )
+		return 6;
+}
 
 //-------------------------------------------------------------------------------------------
 // Devuelve el número de zona en donde se encuentra el punto pasado como parámetro.

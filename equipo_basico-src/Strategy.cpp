@@ -4,7 +4,10 @@
 #include "stdafx.h"
 #include "Strategy.h"
 
+#include "Util.h"
+//#include <Util.h>
 #include <math.h>
+
 
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  ul_reason_for_call, 
@@ -35,7 +38,7 @@ void Attack2 ( Robot *robot, Environment *env );
 void Defend ( Robot *robot, Environment *env, double low, double high );
 
 // by moon at 9/2/2002
-void MoonAttack (Robot *robot, Environment *env );
+void MoonAttack (Robot *robot, Environment *env,int id );
 // just for testing to check whether the &env->opponent works or not
 void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent );
 
@@ -85,9 +88,10 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			// Follow opponent guy
 			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
 			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
-			MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
+			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
 
 			// attack
+			MoonAttack ( &env->home [3], env );
 			MoonAttack ( &env->home [4], env );
 
 			// Goal keeper
@@ -141,18 +145,32 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
   }
 }
 
-void MoonAttack ( Robot *robot, Environment *env )
+
+
+
+void MoonAttack ( Robot *robot, Environment *env,int id )
 {
 	//Velocity (robot, 127, 127);
 	//Angle (robot, 45);
 	PredictBall ( env );
-	Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	//Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	if (robot->pos.y > env->currentBall.pos.y - 8 && robot->pos.y < env->currentBall.pos.y + 8)
+	{
+		if (env->home)
+
+		Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+	}
+	else{
+		Position(robot, robot->pos.x ,env->predictedBall.pos.y);
+	}
 	// Position(robot, 0.0, 0.0);
 }
 
 void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent )
 {
-	Position(robot, opponent->pos.x, opponent->pos.y);
+	if (ZonaReal(opponent->pos.x, opponent->pos.y) > 6)
+		Position(robot, opponent->pos.x, opponent->pos.y);
+
 }
 
 void Velocity ( Robot *robot, int vl, int vr )
@@ -191,7 +209,7 @@ void Position( Robot *robot, double x, double y )
 {
 	int desired_angle = 0, theta_e = 0, d_angle = 0, vl, vr, vc = 70;
 
-	double dx, dy, d_e, Ka = 10.0/90.0;
+	double dx, dy, d_e, Ka = 10.0 / 90.0;
 	dx = x - robot->pos.x;
 	dy = y - robot->pos.y;
 
