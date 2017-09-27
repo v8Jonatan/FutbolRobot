@@ -40,12 +40,15 @@ void Defend ( Robot *robot, Environment *env, double low, double high );
 // by moon at 9/2/2002
 void MoonAttack (Robot *robot, Environment *env,int numero);
 // just for testing to check whether the &env->opponent works or not
-void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent );
+void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent,Environment * env );
 
 bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y);
 bool estoyAbajoXY(Robot *robot,double x,double y);
 bool estoyIzquierdaXY(Robot *robot,double x,double y);
 void irAlLadoInversoXY(Robot *robot,double x, double y);
+void salirDeChoque(Robot *robot,Environment *env);
+void salirDeChoque2(Robot *robot,Environment *env);
+
 
 /*void Velocity ( Robot *robot, int vl, int vr );
 void Angle ( Robot *robot, int desired_angle);
@@ -77,8 +80,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 		case 0:
 			// default
 
-			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
-			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
+			MoonFollowOpponent ( &env->home [1], &env->opponent [2], env );
+			MoonFollowOpponent ( &env->home [2], &env->opponent [3],env );
 			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
 			MoonAttack ( &env->home [3], env , 3);
 			MoonAttack ( &env->home [4], env , 4);
@@ -89,8 +92,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 		case FREE_BALL:
 
 			// Follow opponent guy
-			MoonFollowOpponent ( &env->home [1], &env->opponent [2] );
-			MoonFollowOpponent ( &env->home [2], &env->opponent [3] );
+			MoonFollowOpponent ( &env->home [1], &env->opponent [2],env );
+			MoonFollowOpponent ( &env->home [2], &env->opponent [3] ,env);
 			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
 
 			// attack
@@ -178,6 +181,72 @@ void irAlLadoInversoXY(Robot *robot,double x, double y){
 			// mover a la izquierda
 			Position(robot, x-15, y);
 }
+bool estaEnfrentado(double rot,double rot_otro){
+	return (fabs(rot) - fabs(rot_otro) < 10); 
+}
+
+void salirDeChoque(Robot *robot,Environment *env){
+	//CalcularAnguloAGirar2
+	//Cerca del robot
+	double pos_x, pos_y;
+	double angulo;
+	double rot_otro,rot;
+	bool enfrentado;
+	Vector3D pos_otro;
+	pos_x = robot->pos.x;
+	pos_y = robot->pos.y;
+	rot = robot->rotation;
+	for(int i = 0 ; i < 5 ; i++){
+		pos_otro = env->opponent[i].pos;
+		rot_otro = env->opponent[i].rotation;
+
+		if(CercaDe(pos_x,pos_y,pos_otro.x,pos_otro.y,6)){
+			//entonces hago algo
+			angulo = CalcularAngulo2Pts(pos_x,pos_y,pos_otro.x,pos_otro.y);
+			enfrentado=estaEnfrentado(rot,rot_otro);
+			if((angulo < 40 || angulo > 320) && enfrentado)
+				Position(robot,pos_x-5,pos_y-15);
+			else if (angulo > 50 && angulo < 130 && enfrentado)
+				Position(robot,pos_x-15,pos_y-5);
+			else if (angulo > 140 && angulo < 220 && enfrentado)
+				Position(robot,pos_x+5,pos_y+15);
+			else if (angulo > 230 && angulo < 310 && enfrentado)
+				Position(robot,pos_x-15,pos_y+5);
+		}
+	}
+}
+
+void salirDeChoque2(Robot *robot,Environment *env){
+	//CalcularAnguloAGirar2
+	//Cerca del robot
+	double pos_x, pos_y;
+	double angulo;
+	double rot_otro,rot;
+	bool enfrentado;
+	Vector3D pos_otro;
+	pos_x = robot->pos.x;
+	pos_y = robot->pos.y;
+	rot = robot->rotation;
+	for(int i = 0 ; i < 5 ; i++){
+		pos_otro = env->home[i].pos;
+		rot_otro = env->home[i].rotation;
+		if (robot->pos.x != env->home[i].pos.x && robot->pos.y != env->home[i].pos.y)
+		if(CercaDe(pos_x,pos_y,pos_otro.x,pos_otro.y,5)){
+			//entonces hago algo
+			angulo = CalcularAngulo2Pts(pos_x,pos_y,pos_otro.x,pos_otro.y);
+			enfrentado=estaEnfrentado(rot,rot_otro);
+			if((angulo < 40 || angulo > 320) && enfrentado)
+				Position(robot,pos_x-5,pos_y-15);
+			else if (angulo > 50 && angulo < 130 && enfrentado)
+				Position(robot,pos_x-15,pos_y-5);
+			else if (angulo > 140 && angulo < 220 && enfrentado)
+				Position(robot,pos_x+5,pos_y+15);
+			else if (angulo > 230 && angulo < 310 && enfrentado)
+				Position(robot,pos_x-15,pos_y+5);
+		}
+	}
+}
+
 
 void MoonAttack ( Robot *robot, Environment *env,int numero )
 {
@@ -200,7 +269,7 @@ void MoonAttack ( Robot *robot, Environment *env,int numero )
 		}
 		else if(ZonaReal(ball_x,ball_y) > 6){
 			if (estoyIzquierdaXY(robot,ball_x,ball_y))
-				Position(robot, env->predictedBall.pos.x+15 ,env->currentBall.pos.y - 15);
+				Position(robot, env->predictedBall.pos.x + 15 ,env->currentBall.pos.y - 15);
 			else
 				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
 		}
@@ -208,15 +277,40 @@ void MoonAttack ( Robot *robot, Environment *env,int numero )
 			Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
 	}
 	else
-		Position(robot, env->predictedBall.pos.x + 10,env->predictedBall.pos.y);
+	{
+		if (ZonaReal(ball_x,ball_y) < 3 ) // si esta en el area chica pegale a la pelota
+			Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+		else // despues sera seguir al otro 
+			Position(robot, env->predictedBall.pos.x + 10,env->predictedBall.pos.y);
+
+	}
 	// Position(robot, 0.0, 0.0);
+	if ( (ZonaReal(ball_x,ball_y) > 3 && ZonaReal(robot->pos.x,robot->pos.x) > 3)
+		|| (ZonaReal(ball_x,ball_y) < 8 && ZonaReal(robot->pos.x,robot->pos.x) < 8))
+	{
+			salirDeChoque(robot, env);
+			salirDeChoque2(robot,env);
+	}
+	NearBound2(robot,robot->velocityLeft,robot->velocityRight,env);
+
 }
 
-void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent )
+//agregado para que sigan la pelota cuando pasa la mitad de cancha
+void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent ,Environment *env)
 {
-	if (ZonaReal(opponent->pos.x, opponent->pos.y) > 6)
-		Position(robot, opponent->pos.x, opponent->pos.y);
+	PredictBall ( env );
+	double ball_x = env->currentBall.pos.x;
+	double ball_y = env->currentBall.pos.y;
 
+	if (ZonaReal(ball_x, ball_y) > 6)
+		Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	else{
+		if (robot->pos.x != env->home[1].pos.x && robot->pos.y != env->home[1].pos.y) 
+			Position(robot, 80, 30);
+		else
+			Position(robot, 80, 50);
+	}
+		
 }
 
 void Goalie1 ( Robot *robot, Environment *env )
