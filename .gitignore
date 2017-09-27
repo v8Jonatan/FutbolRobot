@@ -1,1 +1,19 @@
-Middle_League_SimuroSot Program.exe
+equipo_basico-src/Release/*.*
+equipo_basico-src/Debug/*.*
+*.vcxproj
+*.bkp
+*backup.*
+*.sdf
+*.opensdf
+*.vcxproj.filters
+*.sln
+*.obj
+*.dll
+equipo_basico-src/_UpgradeReport_Files
+equipo_basico-src/ipch
+equipo_basico-src/ipch/
+*.XML
+*.htm
+*.suo
+*.vcxproj.*
+copyBlueTeamJonatan.bat
