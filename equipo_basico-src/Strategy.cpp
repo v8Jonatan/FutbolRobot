@@ -48,6 +48,7 @@ bool estoyIzquierdaXY(Robot *robot,double x,double y);
 void irAlLadoInversoXY(Robot *robot,double x, double y);
 void salirDeChoque(Robot *robot,Environment *env);
 void salirDeChoque2(Robot *robot,Environment *env);
+void saqueDeArcoAzul( Environment *env );
 
 extern "C" STRATEGY_API void Create ( Environment *env )
 {
@@ -146,7 +147,8 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			break;
 
 		case GOAL_KICK:
-			MoonAttack ( &env->home [0], env,0 );
+			//MoonAttack ( &env->home [0], env,0 );
+			void saqueDeArcoAzul( env );
 			break;
   }
 }
@@ -542,4 +544,28 @@ void Defend ( Robot *robot, Environment *env, double low, double high )
 		vl += fabs ( Tr - 270 );
 
 	NearBound2 ( robot, vl ,vr, env );
+}
+void saqueDeArcoAzul( Environment *env )
+{
+     Robot *arquero = env->home[0];
+     Robot *defensaIzq = env->home[1];
+     Robot *defensaDer = env->home[2];
+     Robot *delanteroIzq = env->home[3];
+     Robot *delanteroDer = env->home[4];
+     
+     if(zonaReal(env->currentBall.pos.x,env->currentBall.pos.y)==1)
+     {
+         //El Arquero la "Patea" fuera del arco
+         gotoxy(arquero,env->currentBall.pos.x,env->currentBall.pos.y);
+     }
+     else
+     {
+         MoonAttack (delanteroIzq, env , 3);
+         seguirJugador(delanteroDer,delanteroIzq,5,SUROESTE);
+         IntervenirJugadorPelota(defensaIzq,&env->home[3],env);
+         IntervenirJugadorPelota(defensaDer,&env->home[4],env);
+         Goalie1 ( arquero, env );
+     }
+     
+     
 }
