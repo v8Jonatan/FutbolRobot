@@ -47,10 +47,10 @@ bool estoyAbajoXY(Robot *robot,double x,double y);
 bool estoyIzquierdaXY(Robot *robot,double x,double y);
 void irAlLadoInversoXY(Robot *robot,double x, double y);
 
-void Velocity ( Robot *robot, int vl, int vr );
+/*void Velocity ( Robot *robot, int vl, int vr );
 void Angle ( Robot *robot, int desired_angle);
 void Position( Robot *robot, double x, double y );
-
+*/
 extern "C" STRATEGY_API void Create ( Environment *env )
 {
 	// allocate user data and assign to env->userData
@@ -109,7 +109,7 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			break;
 
 		case PLACE_KICK:
-			MoonAttack ( &env->home [2], env, 2);
+			//MoonAttack ( &env->home [2], env, 2);
 			break;			
 		case PENALTY_KICK:
 			switch (env->whosBall)
@@ -148,8 +148,6 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
   }
 }
 
-
-
 bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y){
 	double robot_distancia = Distancia_2Pts(robot->pos.x, x, robot->pos.y, y);
 	double otro_distancia = Distancia_2Pts(otro->pos.x, x, robot->pos.y, y);
@@ -157,7 +155,6 @@ bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y){
 }
 bool estoyAbajoXY(Robot *robot,double x,double y){
 	return robot->pos.x > x - 4 && robot->pos.x < x + 4 && robot->pos.y < y;
-
 }
 
 bool estoyIzquierdaXY(Robot *robot,double x,double y){
@@ -219,110 +216,6 @@ void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent )
 {
 	if (ZonaReal(opponent->pos.x, opponent->pos.y) > 6)
 		Position(robot, opponent->pos.x, opponent->pos.y);
-
-}
-
-void Velocity ( Robot *robot, int vl, int vr )
-{
-	robot->velocityLeft = vl;
-	robot->velocityRight = vr;
-}
-
-// robot soccer system p329
-void Angle ( Robot *robot, int desired_angle)
-{
-	int theta_e, vl, vr;
-	theta_e = desired_angle - (int)robot->rotation;
-	
-	while (theta_e > 180) theta_e -= 360;
-	while (theta_e < -180) theta_e += 360;
-
-	if (theta_e < -90) theta_e += 180;
-	
-	else if (theta_e > 90) theta_e -= 180;
-
-	if (abs(theta_e) > 50) 
-	{
-		vl = (int)(-9./90.0 * (double) theta_e);
-		vr = (int)(9./90.0 * (double)theta_e);
-	}
-	else if (abs(theta_e) > 20)
-	{
-		vl = (int)(-11.0/90.0 * (double)theta_e);
-		vr = (int)(11.0/90.0 * (double)theta_e);
-	}
-	Velocity (robot, vl, vr);
-}
-
-void Position( Robot *robot, double x, double y )
-{
-	int desired_angle = 0, theta_e = 0, d_angle = 0, vl, vr, vc = 70;
-
-	double dx, dy, d_e, Ka = 10.0 / 90.0;
-	dx = x - robot->pos.x;
-	dy = y - robot->pos.y;
-
-	d_e = sqrt(dx * dx + dy * dy);
-	if (dx == 0 && dy == 0)
-		desired_angle = 90;
-	else
-		desired_angle = (int)(180. / PI * atan2((double)(dy), (double)(dx)));
-	theta_e = desired_angle - (int)robot->rotation;
-	
-	while (theta_e > 180) theta_e -= 360;
-	while (theta_e < -180) theta_e += 360;
-
-	if (d_e > 100.) 
-		Ka = 17. / 90.;
-	else if (d_e > 50)
-		Ka = 19. / 90.;
-	else if (d_e > 30)
-		Ka = 21. / 90.;
-	else if (d_e > 20)
-		Ka = 23. / 90.;
-	else 
-		Ka = 25. / 90.;
-	
-	if (theta_e > 95 || theta_e < -95)
-	{
-		theta_e += 180;
-		
-		if (theta_e > 180) 
-			theta_e -= 360;
-		if (theta_e > 80)
-			theta_e = 80;
-		if (theta_e < -80)
-			theta_e = -80;
-		if (d_e < 5.0 && abs(theta_e) < 40)
-			Ka = 0.1;
-		vr = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
-		vl = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
-	}
-	
-	else if (theta_e < 85 && theta_e > -85)
-	{
-		if (d_e < 5.0 && abs(theta_e) < 40)
-			Ka = 0.1;
-		vr = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
-		vl = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
-	}
-
-	else
-	{
-		vr = (int)(+.17 * theta_e);
-		vl = (int)(-.17 * theta_e);
-	}
-
-	Velocity(robot, vl, vr);
-}
-
-
-void PredictBall ( Environment *env )
-{
-	double dx = env->currentBall.pos.x - env->lastBall.pos.x;
-	double dy = env->currentBall.pos.y - env->lastBall.pos.y;
-	env->predictedBall.pos.x = env->currentBall.pos.x + dx;
-	env->predictedBall.pos.y = env->currentBall.pos.y + dy;
 
 }
 

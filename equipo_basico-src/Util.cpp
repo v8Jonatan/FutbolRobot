@@ -2,14 +2,11 @@
 
 #include "stdafx.h"
 #include "Util.h"
-//#include "Strategy.h"
 #include <math.h>
-//#include <fstream.h>
 #include "Const.h"
-
-
 //-----------------------------------------------------------------------------------------------------------------------
 // Devuelve el ángulo a girar por un jugador para queda mirando a la posición xf yf.
+
 double CalcularAnguloAGirar2(double x0,double y0, double xf, double yf, double rr) 
 {
 
@@ -73,7 +70,6 @@ double CalcularAngulo2Pts2(double x0, double y0, double xf, double yf)
 			dAngulo = dAngGrados;
 	}
 
-
 	return dAngulo;
 }
 
@@ -96,13 +92,10 @@ double RadtwoDeg(double dAngRad)
 // Calcula la distancia entre dos puntos.
 double Distancia2(double x0,double y0,double xf,double yf) 
 {
-
 	double dist_x = xf - x0;;
 	double dist_y = yf - y0;
-	
-	return sqrt(((dist_x) * (dist_x)) + ((dist_y) * (dist_y)));
 
-	
+	return sqrt(((dist_x) * (dist_x)) + ((dist_y) * (dist_y)));	
 }
 
 //-------------------------------------------------------------------------------------------
@@ -111,7 +104,6 @@ double Menor(double a, double b)
 {
 	return a < b ? a : b;
 }
-
 
 //-------------------------------------------------------------------------------------------
 // Devuelve el mayor de los dos valores pasados como parámetros.
@@ -164,8 +156,7 @@ int ZonaReal(double x, double y){
 //-------------------------------------------------------------------------------------------
 // Devuelve el número de zona en donde se encuentra el punto pasado como parámetro.
 int Zona (double x, double y) 
-{
-	
+{	
 	if ((x > LIMITE_IZQUIERDO_CAMPO) && (x < AREA_CHICA_LINEA_IZQUIERDA) && 
 		(y > LIMITE_INFERIOR_CAMPO) && (y < AREA_GRANDE_LINEA_INFERIOR))
 			return 1;
@@ -673,4 +664,151 @@ int Velocidad(double Distancia){
 	return Velocidad;
 }
 
+void Velocity ( Robot *robot, int vl, int vr )
+{
+	robot->velocityLeft = vl;
+	robot->velocityRight = vr;
+}
+
+// robot soccer system p329
+void Angle ( Robot *robot, int desired_angle)
+{
+	int theta_e, vl, vr;
+	theta_e = desired_angle - (int)robot->rotation;
+	
+	while (theta_e > 180) theta_e -= 360;
+	while (theta_e < -180) theta_e += 360;
+
+	if (theta_e < -90) theta_e += 180;
+	
+	else if (theta_e > 90) theta_e -= 180;
+
+	if (abs(theta_e) > 50) 
+	{
+		vl = (int)(-9./90.0 * (double) theta_e);
+		vr = (int)(9./90.0 * (double)theta_e);
+	}
+	else if (abs(theta_e) > 20)
+	{
+		vl = (int)(-11.0/90.0 * (double)theta_e);
+		vr = (int)(11.0/90.0 * (double)theta_e);
+	}
+	Velocity (robot, vl, vr);
+}
+
+void Position( Robot *robot, double x, double y )
+{
+	int desired_angle = 0, theta_e = 0, d_angle = 0, vl, vr, vc = 70;
+
+	double dx, dy, d_e, Ka = 10.0 / 90.0;
+	dx = x - robot->pos.x;
+	dy = y - robot->pos.y;
+
+	d_e = sqrt(dx * dx + dy * dy);
+	if (dx == 0 && dy == 0)
+		desired_angle = 90;
+	else
+		desired_angle = (int)(180. / PI * atan2((double)(dy), (double)(dx)));
+	theta_e = desired_angle - (int)robot->rotation;
+	
+	while (theta_e > 180) theta_e -= 360;
+	while (theta_e < -180) theta_e += 360;
+
+	if (d_e > 100.) 
+		Ka = 17. / 90.;
+	else if (d_e > 50)
+		Ka = 19. / 90.;
+	else if (d_e > 30)
+		Ka = 21. / 90.;
+	else if (d_e > 20)
+		Ka = 23. / 90.;
+	else 
+		Ka = 25. / 90.;
+	
+	if (theta_e > 95 || theta_e < -95)
+	{
+		theta_e += 180;
+		
+		if (theta_e > 180) 
+			theta_e -= 360;
+		if (theta_e > 80)
+			theta_e = 80;
+		if (theta_e < -80)
+			theta_e = -80;
+		if (d_e < 5.0 && abs(theta_e) < 40)
+			Ka = 0.1;
+		vr = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
+		vl = (int)(-vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
+	}
+	
+	else if (theta_e < 85 && theta_e > -85)
+	{
+		if (d_e < 5.0 && abs(theta_e) < 40)
+			Ka = 0.1;
+		vr = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) + Ka * theta_e);
+		vl = (int)( vc * (1.0 / (1.0 + exp(-3.0 * d_e)) - 0.3) - Ka * theta_e);
+	}
+	else
+	{
+		vr = (int)(+.17 * theta_e);
+		vl = (int)(-.17 * theta_e);
+	}
+	Velocity(robot, vl, vr);
+}
+
+void gotoxy(Robot *robot, double destino_x, double destino_y)
+{
+	Position( Robot *robot, destino_x, destino_y );
+}
+
+
+void PredictBall ( Environment *env )
+{
+	double dx = env->currentBall.pos.x - env->lastBall.pos.x;
+	double dy = env->currentBall.pos.y - env->lastBall.pos.y;
+	env->predictedBall.pos.x = env->currentBall.pos.x + dx;
+	env->predictedBall.pos.y = env->currentBall.pos.y + dy;
+}
+
+void IntervenirJugadorPelota(Robot *robot, OpponentRobot *opponent,Environment *env)
+{
+	//Verificar si hay espacio para posicionar nuestro robot , entre el oponente y la pelota
+	double margen = 5.0;
+	if(hayEspacio(opponent,&env->currentBall,margen))
+	{
+		//calculo la distancia media en x e y
+		double x = (opponent->pos.x + env->currentBall.pos.x)/2;
+		double y = (opponent->pos.y + env->currentBall.pos.y)/2;
+		Position(robot,x,y);
+	}
+}
+
+void rodearPelota((Robot *robot,Ball *ball,double distancia,Orientacion orientacion))
+{
+	double x = (ball->pos.x+margen < 93 )?ball->pos.x+margen:ball->pos.x;
+	double y = (ball->pos.y+margen < 73 )?ball->pos.y+margen:ball->pos.y;
+	
+	Position(robot, ball->pos.x+margen, robot->pos.y+margen);
+}
+
+void seguirJugador(Robot *sigue,Robot *aSeguir,double distancia,Orientacion orientacion)
+{
+	
+}
+
+bool hayEspacio(OpponentRobot *opponent,Ball *ball,double margen)
+{
+	//Verificar si hay espacio para posicionar nuestro robot , entre el oponente y la pelota
+	double distancia_x = modulo(opponent->pos.x - ball->pos.x); 
+	double distancia_y = modulo(opponent->pos.y - ball->pos.y);
+
+	return	distancia_x > margen && distancia_y > margen;
+}
+
+double modulo(double nro)
+{
+	//Si el numero es negativo , lo convierte en positivo
+	//si el numero es positivo , lo deja positivo
+	return (nro >= 0)nro :nro*-1;
+}
 
