@@ -758,7 +758,7 @@ void Position( Robot *robot, double x, double y )
 
 void gotoxy(Robot *robot, double destino_x, double destino_y)
 {
-	Position( Robot *robot, destino_x, destino_y );
+	Position( robot, destino_x, destino_y );
 }
 
 
@@ -783,25 +783,207 @@ void IntervenirJugadorPelota(Robot *robot, OpponentRobot *opponent,Environment *
 	}
 }
 
-void rodearPelota((Robot *robot,Ball *ball,double distancia,Orientacion orientacion))
+void rodearPelota(Robot *robot,Ball *ball,double distancia,Orientacion orientacion)
 {
-	double x = (ball->pos.x+margen < 93 )?ball->pos.x+margen:ball->pos.x;
-	double y = (ball->pos.y+margen < 73 )?ball->pos.y+margen:ball->pos.y;
+	double base_x = ball->pos.x, 
+		   base_y = ball->pos.y;
 	
-	Position(robot, ball->pos.x+margen, robot->pos.y+margen);
+	double desplazamiento_x = 0.0,
+		   desplazamiento_y = 0.0; 	
+
+	double destino_x = 0.0, 
+		   destino_y = 0.0;
+	
+	//(sqrt(2)/2) es el seno y coseno de 45 grados 
+	double constante = (sqrt(2.0)/2);
+	
+	//Dependiendo de la posicion es la coordenada que le debemos dar 	
+	switch(orientacion)
+	{
+
+	case NOROESTE:
+			//Radio Circular
+			desplazamiento_x = -constante * distancia;
+			desplazamiento_y = constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = distancia;
+			//
+			break; 
+	
+	case NORTE: 
+			desplazamiento_x = 0;
+			desplazamiento_y = distancia;		
+			break;   
+	
+	case NORESTE:
+			//Radio Circular
+			desplazamiento_x = constante * distancia;
+			desplazamiento_y = constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = -distancia;
+			//desplazamiento_y = distancia;
+			//
+			break;
+	
+	case OESTE:
+			desplazamiento_x = -distancia;
+			desplazamiento_y = 0;		
+			break; 
+	
+	case ESTE:
+			desplazamiento_x = distancia;
+			desplazamiento_y = 0;
+			break;
+	
+	case SUROESTE:			
+			desplazamiento_x = -constante * distancia;
+			desplazamiento_y = -constante * distancia;	
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = -distancia;
+			//
+			break; 
+	
+	case SUR:	
+			desplazamiento_x = 0;
+			desplazamiento_y = -distancia;
+			break;
+	
+	case SURESTE:
+			//Radio Circular
+			desplazamiento_x = constante * distancia;
+			desplazamiento_y = -constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = -distancia;
+			//
+			break;
+	
+	case CENTER: //En caso de seleccionar centro ,sigo al robot
+	default: desplazamiento_x = 0; 
+			 desplazamiento_y = 0;
+			 break;
+	
+	}
+	
+	//Para evitar posiciones negativas utilizo el modulo
+	destino_x = modulo(base_x + desplazamiento_x);
+	destino_y = modulo(base_y + desplazamiento_y);
+	
+	//Por si me salgo de los limites
+	destino_x = (destino_x  < LIMITE_DERECHO_CAMPO )? destino_x :LIMITE_DERECHO_CAMPO;
+	destino_y = (destino_y  < LIMITE_SUPERIOR_CAMPO )?destino_y :LIMITE_SUPERIOR_CAMPO;
+	
+	gotoxy(robot,destino_x,destino_y);
 }
 
 void seguirJugador(Robot *sigue,Robot *aSeguir,double distancia,Orientacion orientacion)
 {
+	double base_x = aSeguir->pos.x , 
+		   base_y = aSeguir->pos.y;
 	
+	double desplazamiento_x = 0,
+		   desplazamiento_y = 0;	
+
+	double destino_x = 0, 
+		   destino_y = 0;
+	
+	//(sqrt(2)/2) es el seno y coseno de 45 grados 
+	double constante = 1.0;//(sqrt(2.0)/2);
+	
+	//Dependiendo de la posicion es la coordenada que le debemos dar 	
+	switch(orientacion)
+	{
+
+	case NOROESTE:
+			//Radio Circular
+			desplazamiento_x = -constante * distancia;
+			desplazamiento_y = constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = distancia;
+			//
+			break; 
+	
+	case NORTE: 
+			desplazamiento_x = 0;
+			desplazamiento_y = distancia;		
+			break;   
+	
+	case NORESTE:
+			//Radio Circular
+			desplazamiento_x = constante * distancia;
+			desplazamiento_y = constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = -distancia;
+			//desplazamiento_y = distancia;
+			//
+			break;
+	
+	case OESTE:
+			desplazamiento_x = -distancia;
+			desplazamiento_y = 0;		
+			break; 
+	
+	case ESTE:
+			desplazamiento_x = distancia;
+			desplazamiento_y = 0;
+			break;
+	
+	case SUROESTE:			
+			desplazamiento_x = -constante * distancia;
+			desplazamiento_y = -constante * distancia;	
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = -distancia;
+			//
+			break; 
+	
+	case SUR:	
+			desplazamiento_x = 0;
+			desplazamiento_y = -distancia;
+			break;
+	
+	case SURESTE:
+			//Radio Circular
+			desplazamiento_x = constante * distancia;
+			desplazamiento_y = -constante * distancia;
+			//Radio Cuadrado
+			//desplazamiento_x = distancia;
+			//desplazamiento_y = -distancia;
+			//
+			break;
+	
+	case CENTER: //En caso de seleccionar centro ,sigo al robot
+	default: desplazamiento_x = 0; 
+			 desplazamiento_y = 0;
+			 break;
+	
+	}
+	
+	//Para evitar posiciones negativas utilizo el modulo
+	destino_x = modulo(base_x + desplazamiento_x);
+	destino_y = modulo(base_y + desplazamiento_y);
+	
+	//Por si me salgo de los limites
+	destino_x = (destino_x  < LIMITE_DERECHO_CAMPO )? destino_x :LIMITE_DERECHO_CAMPO;
+	destino_y = (destino_y  < LIMITE_SUPERIOR_CAMPO )?destino_y :LIMITE_SUPERIOR_CAMPO;
+	
+	gotoxy(sigue,destino_x,destino_y);
+
 }
+
+
 
 bool hayEspacio(OpponentRobot *opponent,Ball *ball,double margen)
 {
-	//Verificar si hay espacio para posicionar nuestro robot , entre el oponente y la pelota
+	//
+	//Verifica si hay espacio para posicionar nuestro robot , entre el oponente y la pelota
+	//
 	double distancia_x = modulo(opponent->pos.x - ball->pos.x); 
 	double distancia_y = modulo(opponent->pos.y - ball->pos.y);
-
+	
 	return	distancia_x > margen && distancia_y > margen;
 }
 
@@ -809,6 +991,6 @@ double modulo(double nro)
 {
 	//Si el numero es negativo , lo convierte en positivo
 	//si el numero es positivo , lo deja positivo
-	return (nro >= 0)nro :nro*-1;
+	return (nro >= 0)? nro : -nro;
 }
 
