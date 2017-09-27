@@ -49,11 +49,6 @@ void irAlLadoInversoXY(Robot *robot,double x, double y);
 void salirDeChoque(Robot *robot,Environment *env);
 void salirDeChoque2(Robot *robot,Environment *env);
 
-
-/*void Velocity ( Robot *robot, int vl, int vr );
-void Angle ( Robot *robot, int desired_angle);
-void Position( Robot *robot, double x, double y );
-*/
 extern "C" STRATEGY_API void Create ( Environment *env )
 {
 	// allocate user data and assign to env->userData
@@ -112,7 +107,12 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			break;
 
 		case PLACE_KICK:
-			//MoonAttack ( &env->home [2], env, 2);
+			//MoonAttack ( &env->home [4], env, 2);
+			//Si es menor a 4,se pega al robot :S
+			seguirJugador( &env->home[3],&env->home[2],4,NOROESTE);
+			seguirJugador( &env->home[4],&env->home[2],4,SUROESTE);
+
+			//rodearPelota (&env->home [4],&env->predictedBall,3,ESTE);
 			break;			
 		case PENALTY_KICK:
 			switch (env->whosBall)
@@ -181,6 +181,7 @@ void irAlLadoInversoXY(Robot *robot,double x, double y){
 			// mover a la izquierda
 			Position(robot, x-15, y);
 }
+
 bool estaEnfrentado(double rot,double rot_otro){
 	return (fabs(rot) - fabs(rot_otro) < 10); 
 }

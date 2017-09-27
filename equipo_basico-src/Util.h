@@ -83,9 +83,9 @@ void gotoxy( Robot *robot, double destino_x, double destino_y);
 
 void PredictBall( Environment *env );
 
-enum Orientacion{NorOeste , Norte  , NorEste,
-				 Oeste    , Center , Este,
-				 SurOeste , Sur    , SurEste};
+enum Orientacion{NOROESTE , NORTE  , NORESTE,
+				 OESTE    , CENTER , ESTE,
+				 SUROESTE , SUR    , SURESTE};
 
 void IntervenirJugadorPelota(Robot *robot, OpponentRobot *opponent,Environment *env);
 bool hayEspacio(OpponentRobot *opponent,Ball *ball,double margen);
