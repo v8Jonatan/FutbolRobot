@@ -6,9 +6,6 @@
 
 #include "Strategy.h"
 
-
-
-
 // Devuelve el ángulo a girar por un jugador para queda mirando a la posición xf yf.
 double CalcularAnguloAGirar2(double x0,double y0, double xf, double yf, double rr);
 
@@ -76,6 +73,25 @@ double PosPrePelY(double PosX, Environment *env);
 double PosPrePelX(double PosY, Environment *env);
 double Vel_Ball(Environment *env);
 int Velocidad(double Distancia);
+
+void Velocity ( Robot *robot, int vl, int vr );
+
+void Angle( Robot *robot, int desired_angle);
+
+void Position( Robot *robot, double x, double y );
+void gotoxy( Robot *robot, double destino_x, double destino_y);
+
+void PredictBall( Environment *env );
+
+enum Orientacion{NOROESTE , NORTE  , NORESTE,
+				 OESTE    , CENTER , ESTE,
+				 SUROESTE , SUR    , SURESTE};
+
+void IntervenirJugadorPelota(Robot *robot, OpponentRobot *opponent,Environment *env);
+bool hayEspacio(OpponentRobot *opponent,Ball *ball,double margen);
+double modulo(double nro);
+void rodearPelota(Robot *robot,Ball *ball,double distancia,Orientacion orientacion);
+void seguirJugador(Robot *sigue,Robot *aSeguir,double distancia,Orientacion orientacion);
 
 
 #endif // UTIL_H
