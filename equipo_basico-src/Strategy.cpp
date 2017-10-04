@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "Strategy.h"
-
+#include "ZonaJuego.h"
 #include "Util.h"
 //#include <Util.h>
 #include <math.h>
@@ -50,10 +50,15 @@ void salirDeChoque(Robot *robot,Environment *env);
 void salirDeChoque2(Robot *robot,Environment *env);
 void saqueDeArcoAzul( Environment *env );
 
+//VARIABLE GLOBAL
+
+ZonaJuego * zonajuego;
+
 extern "C" STRATEGY_API void Create ( Environment *env )
 {
 	// allocate user data and assign to env->userData
 	// eg. env->userData = ( void * ) new MyVariables ();
+	zonajuego = new ZonaJuego();
 }
 
 extern "C" STRATEGY_API void Destroy ( Environment *env )
@@ -61,6 +66,7 @@ extern "C" STRATEGY_API void Destroy ( Environment *env )
 	// free any user data created in Create ( Environment * )
 
 	// eg. if ( env->userData != NULL ) delete ( MyVariables * ) env->userData;
+	delete zonajuego;
 }
 
 extern "C" STRATEGY_API void Strategy ( Environment *env )
@@ -148,7 +154,7 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 
 		case GOAL_KICK:
 			//MoonAttack ( &env->home [0], env,0 );
-			void saqueDeArcoAzul( env );
+			saqueDeArcoAzul( env );
 			break;
   }
 }
@@ -295,7 +301,6 @@ void MoonAttack ( Robot *robot, Environment *env,int numero )
 			salirDeChoque2(robot,env);
 	}
 	NearBound2(robot,robot->velocityLeft,robot->velocityRight,env);
-
 }
 
 //agregado para que sigan la pelota cuando pasa la mitad de cancha
@@ -313,13 +318,12 @@ void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent ,Environment *en
 		else
 			Position(robot, 80, 50);
 	}
-		
 }
 
 void Goalie1 ( Robot *robot, Environment *env )
 {
-	double velocityLeft = 0, velocityRight = 0;
-	
+	double velocityLeft = 0,
+         velocityRight = 0;
 	double Tx = env->goalBounds.right - env->currentBall.pos.x;
 	double Ty = env->fieldBounds.top - env->currentBall.pos.y;
 
@@ -401,7 +405,6 @@ void Attack2 ( Robot *robot, Environment *env )
 			angleToPoint = 360;
 		else
 			angleToPoint = 180;
-		
 	}
 	else
 		angleToPoint = atan ( fabs ( dy / dx ) ) * 180.0 / PI;
@@ -545,27 +548,28 @@ void Defend ( Robot *robot, Environment *env, double low, double high )
 
 	NearBound2 ( robot, vl ,vr, env );
 }
+
 void saqueDeArcoAzul( Environment *env )
 {
-     Robot *arquero = env->home[0];
-     Robot *defensaIzq = env->home[1];
-     Robot *defensaDer = env->home[2];
-     Robot *delanteroIzq = env->home[3];
-     Robot *delanteroDer = env->home[4];
+     Robot *arquero = &env->home[0];
+     Robot *defensaIzq = &env->home[1];
+     Robot *defensaDer = &env->home[2];
+     Robot *delanteroIzq = &env->home[3];
+     Robot *delanteroDer = &env->home[4];
+	
+	 Area * penal = zonajuego->darAreaJuegoAzul()->darArea(AREA_PENAL);
      
-     if(zonaReal(env->currentBall.pos.x,env->currentBall.pos.y)==1)
+	 if(penal->estoyDentroDelArea(env->currentBall.pos.x,env->currentBall.pos.y))
      {
          //El Arquero la "Patea" fuera del arco
          gotoxy(arquero,env->currentBall.pos.x,env->currentBall.pos.y);
      }
      else
      {
-         MoonAttack (delanteroIzq, env , 3);
+         //MoonAttack (delanteroIzq, env , 3);
          seguirJugador(delanteroDer,delanteroIzq,5,SUROESTE);
-         IntervenirJugadorPelota(defensaIzq,&env->home[3],env);
-         IntervenirJugadorPelota(defensaDer,&env->home[4],env);
+         IntervenirJugadorPelota(defensaIzq,&env->opponent[3],env);
+         IntervenirJugadorPelota(defensaDer,&env->opponent[4],env);
          Goalie1 ( arquero, env );
      }
-     
-     
 }

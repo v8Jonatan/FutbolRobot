@@ -3,35 +3,35 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: Strategy - Win32 Release--------------------
+--------------------Configuration: Strategy - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\CONFIG~1\Temp\RSP121.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP7F.tmp" with contents
 [
-/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "STRATEGY_EXPORTS" /FR"Release/" /Fp"Release/Strategy.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\Documents and Settings\All Users\Escritorio\FutbolRobot\equipo_basico-src\Strategy.cpp"
+/nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "STRATEGY_EXPORTS" /FR"Debug/" /Fp"Debug/Strategy.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Documents and Settings\All Users\Escritorio\FutbolRobot\equipo_basico-src\ZonaJuego.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\CONFIG~1\Temp\RSP121.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\CONFIG~1\Temp\RSP122.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP7F.tmp" 
+Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP80.tmp" with contents
 [
-kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /pdb:"Release/Basico.pdb" /machine:I386 /out:"Release/Basico.dll" /implib:"Release/Basico.lib" 
-".\Release\StdAfx.obj"
-".\Release\Strategy.obj"
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:yes /pdb:"Debug/UBASot.pdb" /debug /machine:I386 /out:"Debug/UBASot.dll" /implib:"Debug/UBASot.lib" /pdbtype:sept 
+".\Debug\Area.obj"
+".\Debug\StdAfx.obj"
+".\Debug\Strategy.obj"
+".\Debug\Util.obj"
+".\Debug\ZonaJuego.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\CONFIG~1\Temp\RSP122.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP80.tmp"
 <h3>Output Window</h3>
 Compiling...
-Strategy.cpp
+ZonaJuego.cpp
 Linking...
-   Creating library Release/Basico.lib and object Release/Basico.exp
-Creating command line "bscmake.exe /nologo /o"Release/Strategy.bsc"  ".\Release\StdAfx.sbr" ".\Release\Strategy.sbr""
-Creating browse info file...
-<h3>Output Window</h3>
+   Creating library Debug/UBASot.lib and object Debug/UBASot.exp
 
 
 
 <h3>Results</h3>
-Basico.dll - 0 error(s), 0 warning(s)
+UBASot.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
