@@ -6,13 +6,13 @@
 --------------------Configuration: Strategy - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP9A.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSPBC.tmp" with contents
 [
 /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "STRATEGY_EXPORTS" /FR"Debug/" /Fp"Debug/Strategy.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
 "C:\Documents and Settings\All Users\Escritorio\FutbolRobot\equipo_basico-src\Strategy.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP9A.tmp" 
-Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP9B.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSPBC.tmp" 
+Creating temporary file "C:\DOCUME~1\Federico\CONFIG~1\Temp\RSPBD.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:yes /pdb:"Debug/UBASot.pdb" /debug /machine:I386 /out:"Debug/UBASot.dll" /implib:"Debug/UBASot.lib" /pdbtype:sept 
 ".\Debug\Area.obj"
@@ -21,11 +21,12 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 ".\Debug\Util.obj"
 ".\Debug\ZonaJuego.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSP9B.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Federico\CONFIG~1\Temp\RSPBD.tmp"
 <h3>Output Window</h3>
 Compiling...
 Strategy.cpp
 Linking...
+LINK : LNK6004: Debug/UBASot.dll not found or not built by the last incremental link; performing full link
    Creating library Debug/UBASot.lib and object Debug/UBASot.exp
 
 

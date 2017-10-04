@@ -575,10 +575,19 @@ void saqueDeArcoAzul( Environment *env )
      }
      else
      {
-         //MoonAttack (delanteroIzq, env , 3);
-         seguirJugador(delanteroDer,delanteroIzq,5,SUROESTE);
-         IntervenirJugadorPelota(defensaIzq,&env->opponent[3],env);
+         MoonAttack (delanteroIzq, env , 3);
+		
+		 Orientacion dir;
+		
+		 if(zonajuego->estoyMitadSuperior(env->currentBall.pos.y))
+			dir = NOROESTE;
+		 else
+			dir = SUROESTE;
+
+         seguirJugador(delanteroDer,delanteroIzq,11,dir);
+         
+		 IntervenirJugadorPelota(defensaIzq,&env->opponent[3],env);
          IntervenirJugadorPelota(defensaDer,&env->opponent[4],env);
-         Goalie1 ( arquero, env );
+         Goalie2 ( arquero, env );
      }
 }
