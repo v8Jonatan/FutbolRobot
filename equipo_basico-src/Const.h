@@ -126,6 +126,11 @@ const double LINEA_ZONA_PELIGRO_DEF_AZUL_Y_SUP = 60.01;
 const double LINEA_ZONA_PELIGRO_DEF_AZUL_Y_INF = 25.29;
 
 const double LINEA_ZONA_PELIGRO_DEF_AZUL_X2 = 85.71;
+
+const double POS_DEFENSOR_PASIVO_X = 80.0;
+const double POS_DEFENSOR_PASIVO_UNO_Y = 30.0;
+const double POS_DEFENSOR_PASIVO_DOS_Y = 50.0;
+
 //----------------------------------------------------------------------
 // Pesquero.
 

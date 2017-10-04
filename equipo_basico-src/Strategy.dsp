@@ -121,6 +121,10 @@ SOURCE=.\Area.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Const.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.h
 # End Source File
 # Begin Source File

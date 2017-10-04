@@ -33,6 +33,7 @@ char myMessage[200]; //big enough???
 
 void PredictBall ( Environment *env );
 void Goalie1 ( Robot *robot, Environment *env );
+void Goalie2 ( Robot *robot, Environment *env );
 void NearBound2 ( Robot *robot, double vl, double vr, Environment *env );
 void Attack2 ( Robot *robot, Environment *env );
 void Defend ( Robot *robot, Environment *env, double low, double high );
@@ -87,7 +88,7 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			//MoonFollowOpponent ( &env->home [3], &env->opponent [4] );
 			MoonAttack ( &env->home [3], env , 3);
 			MoonAttack ( &env->home [4], env , 4);
-			Goalie1 ( &env->home [0], env );
+			Goalie2 ( &env->home [0], env );
 
 			break;
 
@@ -103,7 +104,7 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 			MoonAttack ( &env->home [4], env , 4);
 
 			// Goal keeper
-			Goalie1 ( &env->home [0], env );
+			Goalie2 ( &env->home [0], env );
 
 			// by moon at 24/03/2002
 			// below code will not work.... never try....
@@ -314,9 +315,9 @@ void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent ,Environment *en
 		Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
 	else{
 		if (robot->pos.x != env->home[1].pos.x && robot->pos.y != env->home[1].pos.y) 
-			Position(robot, 80, 30);
-		else
-			Position(robot, 80, 50);
+			Position(robot, POS_DEFENSOR_PASIVO_X, POS_DEFENSOR_PASIVO_UNO_Y);
+ 		else
+			Position(robot, POS_DEFENSOR_PASIVO_X, POS_DEFENSOR_PASIVO_DOS_Y);
 	}
 }
 
@@ -368,7 +369,15 @@ void Goalie1 ( Robot *robot, Environment *env )
 	robot->velocityRight = velocityRight;
 }
 
-
+void Goalie2 ( Robot *robot, Environment *env )
+{
+	PredictBall(env);
+	int zona = ZonaReal(env->predictedBall.pos.x, env->predictedBall.pos.y);
+	if(zona == 9 || zona == 8)
+		Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	else
+		Position(robot, 90.7 , 42.2 );	
+}
 
 void Attack2 ( Robot *robot, Environment *env )
 {
