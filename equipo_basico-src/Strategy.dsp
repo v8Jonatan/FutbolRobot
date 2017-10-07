@@ -92,6 +92,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Area.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
@@ -99,10 +103,26 @@ SOURCE=.\StdAfx.cpp
 
 SOURCE=.\Strategy.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Util.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ZonaJuego.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Area.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Const.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\StdAfx.h
@@ -110,6 +130,14 @@ SOURCE=.\StdAfx.h
 # Begin Source File
 
 SOURCE=.\Strategy.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ZonaJuego.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
