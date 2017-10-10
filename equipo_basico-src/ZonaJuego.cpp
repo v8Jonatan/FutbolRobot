@@ -9,10 +9,6 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-const double INICIO_X = 0;
-const double FIN_X = LIMITE_DERECHO_CAMPO;
-const double INICIO_Y = 0;
-const double FIN_Y = LIMITE_SUPERIOR_CAMPO;
 
 ZonaJuego::ZonaJuego()
 {

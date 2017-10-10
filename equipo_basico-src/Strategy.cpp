@@ -50,6 +50,7 @@ void irAlLadoInversoXY(Robot *robot,double x, double y);
 void salirDeChoque(Robot *robot,Environment *env);
 void salirDeChoque2(Robot *robot,Environment *env);
 void saqueDeArcoAzul( Environment *env );
+void ataqueNormalAzul(Robot *robot,Environment *env);
 
 //VARIABLE GLOBAL
 
@@ -574,8 +575,9 @@ void saqueDeArcoAzul( Environment *env )
      }
      else
      {
-         MoonAttack (delanteroIzq, env , 3);
+         ataqueNormalAzul (delanteroIzq, env);
 		
+		 
 		 Orientacion dir;
 		
 		 if(zonajuego->estoyMitadSuperior(&env->currentBall))
@@ -589,4 +591,59 @@ void saqueDeArcoAzul( Environment *env )
          IntervenirJugadorPelota(defensaDer,&env->opponent[4],env);
          Goalie2 ( arquero, env );
      }
+}
+
+
+void ataqueNormalAzul(Robot *robot,Environment *env)
+{
+	if(zonajuego->estoyZonaAmarilla(robot->pos.x,robot->pos.y))
+	{
+		if(CercaDe(robot->pos.x,robot->pos.y,env->currentBall.pos.x,env->currentBall.pos.y,5))
+		{	
+
+			//Estoy en zona del oponente 
+			if(zonajuego->estoyEnArea(INICIO_X,robot->pos.y,AREA_GOL))
+			{
+				//Va hacia la zona de gol , no ve al arquero :S
+				
+				gotoxy(robot,INICIO_X,robot->pos.y);
+			}
+			else
+			{
+				/*double direccion = zonajuego->estoyMitadSuperior(robot)?-1:1,
+					   decremento_y = 0;
+				*/
+				//apunte al centro del arco
+					gotoxy(robot,INICIO_X,FIN_Y/2);
+			}
+		}	
+		else
+			gotoxy(robot,env->currentBall.pos.x,env->currentBall.pos.y);		
+
+	}
+	else
+	{	
+		if(zonajuego->estoyZonaAmarilla(env->currentBall.pos.x,env->currentBall.pos.y))
+			gotoxy(robot,env->currentBall.pos.x,env->currentBall.pos.y);
+		else
+		 {
+			//Estoy en mi zona
+			if((env->predictedBall.pos.x - env->currentBall.pos.x) >= 0)
+			{
+				//la pelota se esta moviendo hacia mi arco
+				/*if(robot->pos.x == env->predictedBall.pos.x)
+					gotoxy(robot,env->predictedBall.pos.x,env->predictedBall.pos.y);
+				else
+					gotoxy(robot,env->predictedBall.pos.x,robot->pos.y);
+				*/
+				IntervenirJugadorPelota(robot,&env->opponent[2],env);
+			 }
+			else
+			{
+				//la pelota se mueve al lado contrario, entonces persigo a la pelota
+				if( (env->currentBall.pos.x+5) > robot->pos.x)
+					gotoxy(robot,env->currentBall.pos.x,env->currentBall.pos.y);
+			}	
+		 }
+	}
 }
