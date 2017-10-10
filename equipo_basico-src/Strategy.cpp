@@ -566,9 +566,8 @@ void saqueDeArcoAzul( Environment *env )
      Robot *delanteroIzq = &env->home[3];
      Robot *delanteroDer = &env->home[4];
 	
-	 Area * penal = zonajuego->darAreaJuegoAzul()->darArea(AREA_PENAL);
-     
-	 if(penal->estoyDentroDelArea(env->currentBall.pos.x,env->currentBall.pos.y))
+	 
+	 if(zonajuego->estoyEnAreaAzul(AREA_PENAL,&env->currentBall))
      {
          //El Arquero la "Patea" fuera del arco
          gotoxy(arquero,env->currentBall.pos.x,env->currentBall.pos.y);
@@ -579,7 +578,7 @@ void saqueDeArcoAzul( Environment *env )
 		
 		 Orientacion dir;
 		
-		 if(zonajuego->estoyMitadSuperior(env->currentBall.pos.y))
+		 if(zonajuego->estoyMitadSuperior(&env->currentBall))
 			dir = NOROESTE;
 		 else
 			dir = SUROESTE;

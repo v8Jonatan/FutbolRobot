@@ -29,6 +29,17 @@ Area::~Area()
 
 }
 
+
+bool Area::estoyDentroDelArea(eArea area,double posicion_x,double posicion_y)
+{
+	Area * subArea = darArea(area);
+	
+	if(subArea == NULL)
+		return false;
+	
+	return subArea->estoyDentroDelArea(posicion_x,posicion_y);
+}
+
 bool Area::estoyDentroDelArea(double posicion_x,double posicion_y)
 {
 	//Si posicion_x esta comprendido entre inicio_x y fin_x , esta dentro del eje x
@@ -36,6 +47,8 @@ bool Area::estoyDentroDelArea(double posicion_x,double posicion_y)
 	return ( posicion_x >= inicio_x && posicion_x <= fin_x ) &&
 		   ( posicion_y >= inicio_y	&& posicion_y <= fin_y );	
 }
+
+
 
 bool Area::mitadInferior(double posicion_y)
 {

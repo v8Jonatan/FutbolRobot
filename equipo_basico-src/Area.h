@@ -33,6 +33,8 @@ public:
 	eArea getTipoArea();
 	virtual ~Area();
 	bool estoyDentroDelArea(double posicion_x,double posicion_y);
+	bool estoyDentroDelArea(eArea area,double posicion_x,double posicion_y);
+
 	bool mitadSuperior(double posicion_y);
 	bool mitadInferior(double posicion_y);
 	void agregarArea(Area *area);

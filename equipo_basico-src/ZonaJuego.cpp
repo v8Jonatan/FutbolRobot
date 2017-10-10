@@ -123,9 +123,31 @@ bool ZonaJuego::estoyMitadSuperior(double posicion_y)
 {	
 	return amarilla->mitadSuperior(posicion_y);
 }
+
+bool ZonaJuego::estoyMitadSuperior(Ball *pelota){
+	return estoyMitadSuperior(pelota->pos.y);
+}
+bool ZonaJuego::estoyMitadSuperior(OpponentRobot *oponente){
+	return estoyMitadSuperior(oponente->pos.y);
+}
+bool ZonaJuego::estoyMitadSuperior(Robot *jugador){
+	return estoyMitadSuperior(jugador->pos.y);
+}
+
+
 bool ZonaJuego::estoyMitadInferior(double posicion_y)
 {
 	return amarilla->mitadInferior(posicion_y);
+}
+
+bool ZonaJuego::estoyMitadInferior(Ball *pelota){
+	return estoyMitadInferior(pelota->pos.y);
+}
+bool ZonaJuego::estoyMitadInferior(OpponentRobot *oponente){
+	return estoyMitadInferior(oponente->pos.y);
+}
+bool ZonaJuego::estoyMitadInferior(Robot *jugador){
+	return estoyMitadInferior(jugador->pos.y);
 }
 
 bool ZonaJuego::estoyEnArea(double posicion_x,double posicion_y,eArea area)
@@ -136,8 +158,8 @@ bool ZonaJuego::estoyEnArea(double posicion_x,double posicion_y,eArea area)
 		  
 		  if(aux == NULL)
 			  return false;
-		  
-		  return aux->getTipoArea()==area;
+			  
+		  return aux->getTipoArea() == area;
 	}
 	else
 	{
@@ -149,6 +171,54 @@ bool ZonaJuego::estoyEnArea(double posicion_x,double posicion_y,eArea area)
 		  return aux->getTipoArea()==area;
 	}
 }
+
+
+bool ZonaJuego::estoyEnAreaAmarilla(eArea area,Ball *pelota){
+
+	double pos_x = pelota->pos.x ,
+		   pos_y = pelota->pos.y;
+
+	return amarilla->estoyDentroDelArea(area,pos_x,pos_y);
+}
+
+bool ZonaJuego::estoyEnAreaAmarilla(eArea area,OpponentRobot *oponente){
+	double pos_x = oponente->pos.x ,
+		   pos_y = oponente->pos.y;
+
+	return amarilla->estoyDentroDelArea(area,pos_x,pos_y);
+}
+
+bool ZonaJuego::estoyEnAreaAmarilla(eArea area,Robot *jugador){
+	double pos_x = jugador->pos.x ,
+		   pos_y = jugador->pos.y;
+
+	return amarilla->estoyDentroDelArea(area,pos_x,pos_y);
+}
+	
+bool ZonaJuego::estoyEnAreaAzul(eArea area,Ball * pelota){
+	double pos_x = pelota->pos.x ,
+		   pos_y = pelota->pos.y;
+
+	return azul->estoyDentroDelArea(area,pos_x,pos_y);
+}
+
+bool ZonaJuego::estoyEnAreaAzul(eArea area,OpponentRobot *oponente){
+	double pos_x = oponente->pos.x ,
+		   pos_y = oponente->pos.y;
+
+	return azul->estoyDentroDelArea(area,pos_x,pos_y);
+}
+
+bool ZonaJuego::estoyEnAreaAzul(eArea area,Robot *jugador){
+	double pos_x = jugador->pos.x ,
+		   pos_y = jugador->pos.y;
+
+	return azul->estoyDentroDelArea(area,pos_x,pos_y);
+
+}
+
+
+
 	
 bool ZonaJuego::hayMasDe3Jugadores(double posicion_x,double posicion_y)
 {

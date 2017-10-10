@@ -28,9 +28,27 @@ public:
 
 	bool estoyZonaAmarilla(double posicion_x,double posicion_y);
 	bool estoyZonaAzul(double posicion_x,double posicion_y);
+	
 	bool estoyMitadSuperior(double posicion_y);
+	bool estoyMitadSuperior(Ball *pelota);
+	bool estoyMitadSuperior(OpponentRobot *oponente);
+	bool estoyMitadSuperior(Robot *jugador);
+	
 	bool estoyMitadInferior(double posicion_y);
+	bool estoyMitadInferior(Ball *pelota);
+	bool estoyMitadInferior(OpponentRobot *oponente);
+	bool estoyMitadInferior(Robot *jugador);
+
 	bool estoyEnArea(double posicion_x,double posicion_y,eArea area);
+	
+	bool estoyEnAreaAmarilla(eArea area,Ball *pelota);
+	bool estoyEnAreaAmarilla(eArea area,OpponentRobot *oponente);
+	bool estoyEnAreaAmarilla(eArea area,Robot *jugador);
+	
+	bool estoyEnAreaAzul(eArea area,Ball * pelota);
+	bool estoyEnAreaAzul(eArea area,OpponentRobot *oponente);
+	bool estoyEnAreaAzul(eArea area,Robot *jugador);
+	
 	
 	bool hayMasDe3Jugadores(double posicion_x,double posicion_y);
 	bool hayMasDe3JugadoresAzul(eArea area);
