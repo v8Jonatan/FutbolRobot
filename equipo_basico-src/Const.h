@@ -164,4 +164,10 @@ const double LINEA_X_ARQUERO = 92.75;
 
 const double LINEA_DEFENSOR_ATACANTE_AZUL = 18.43;
 
+
+//Usadas en funciones :D es para establecer los 4 vertices de la cancha
+const double INICIO_X = 0;
+const double FIN_X = LIMITE_DERECHO_CAMPO;
+const double INICIO_Y = 0;
+const double FIN_Y = LIMITE_SUPERIOR_CAMPO;
 #endif // CONST_H
