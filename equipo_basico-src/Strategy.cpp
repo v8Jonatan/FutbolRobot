@@ -44,16 +44,23 @@ void MoonAttack (Robot *robot, Environment *env,int numero);
 void MoonFollowOpponent (  Robot *robot, OpponentRobot *opponent,Environment * env );
 
 bool estoyMasCercaToXY(Robot *robot, Robot *otro, double x, double y);
-bool estoyAbajoXY(Robot *robot,double x,double y);
-bool estoyIzquierdaXY(Robot *robot,double x,double y);
+bool estoyAbajoXY(Robot *robot, double x, double y);
+bool estoyArribaXY(Robot *robot, double x, double y);
+bool estoyIzquierdaXY(Robot *robot, double x, double y);
+bool estoyDerechaXY(Robot *robot, double x, double y);
+
+
 void irAlLadoInversoXY(Robot *robot,double x, double y);
 void salirDeChoque(Robot *robot,Environment *env);
 void salirDeChoque2(Robot *robot,Environment *env);
 void saqueDeArcoAzul( Environment *env );
 
+void fijarPosicionDelantero( Robot *robot, Environment *env);
+
 //VARIABLE GLOBAL
 
 ZonaJuego * zonajuego;
+int ladoEquipo = 0;
 
 
 extern "C" STRATEGY_API void Create ( Environment *env )
@@ -78,6 +85,11 @@ extern "C" STRATEGY_API void Strategy ( Environment *env )
 
 	int testInt = 100;
 	int k;
+	Robot * arquero = &env->home[0] ;
+	if (ZonaReal(arquero->pos.x, arquero->pos.y) > 5) // esta del lado derecho
+		ladoEquipo = LADO_AZUL;
+	else
+		ladoEquipo = LADO_AMARILLO;
 
 	switch (env->gameState)
 	{
@@ -170,9 +182,18 @@ bool estoyAbajoXY(Robot *robot,double x,double y){
 	return robot->pos.x > x - 4 && robot->pos.x < x + 4 && robot->pos.y < y;
 }
 
-bool estoyIzquierdaXY(Robot *robot,double x,double y){
-	return robot->pos.x > x - 30 && robot->pos.x < y + 30 && robot->pos.x < x;
+bool estoyArribaXY(Robot *robot,double x,double y){
+	return robot->pos.x > x - 4 && robot->pos.x < x + 4 && robot->pos.y > y;
 }
+
+bool estoyIzquierdaXY(Robot *robot,double x,double y){
+	return robot->pos.y > y - 30 && robot->pos.y < y + 30 && robot->pos.x < x;
+}
+
+bool estoyDerechaXY(Robot *robot,double x,double y){
+	return robot->pos.y > y - 30 && robot->pos.y < y + 30 && robot->pos.x > x;
+}
+
 void irAlLadoInversoXY(Robot *robot,double x, double y){
 	double pos_x = robot->pos.x;
 	double pos_y = robot->pos.y;
@@ -193,7 +214,7 @@ void irAlLadoInversoXY(Robot *robot,double x, double y){
 }
 
 bool estaEnfrentado(double rot,double rot_otro){
-	return (fabs(rot) - fabs(rot_otro) < 10); 
+	return (fabs(rot) - fabs(rot_otro) < 15); 
 }
 
 void salirDeChoque(Robot *robot,Environment *env){
@@ -211,10 +232,10 @@ void salirDeChoque(Robot *robot,Environment *env){
 		pos_otro = env->opponent[i].pos;
 		rot_otro = env->opponent[i].rotation;
 
-		if(CercaDe(pos_x,pos_y,pos_otro.x,pos_otro.y,6)){
+		if(CercaDe(pos_x, pos_y, pos_otro.x,pos_otro.y, 6)){
 			//entonces hago algo
 			angulo = CalcularAngulo2Pts(pos_x,pos_y,pos_otro.x,pos_otro.y);
-			enfrentado=estaEnfrentado(rot,rot_otro);
+			enfrentado = estaEnfrentado(rot, rot_otro);
 			if((angulo < 40 || angulo > 320) && enfrentado)
 				Position(robot,pos_x-5,pos_y-15);
 			else if (angulo > 50 && angulo < 130 && enfrentado)
@@ -259,60 +280,95 @@ void salirDeChoque2(Robot *robot,Environment *env){
 }
 
 
+void fijarPosicionDelantero( Robot *robot, Environment *env){
+	int areaChica = ladoEquipo == LADO_AZUL ? 9 : 1;
+	int areaGrande = ladoEquipo == LADO_AZUL ? 8 : 2;
+	double posx = ladoEquipo == LADO_AZUL ? 66.0 : 35.0;
+	
+	int zonaPelota = ZonaReal(env->currentBall.pos.x,env->currentBall.pos.y);
+
+	if (zonaPelota == areaChica || zonaPelota == areaGrande)
+	{
+		if (robot->pos.x != env->home[4].pos.x && robot->pos.y != env->home[4].pos.y) 
+			Position(robot, posx, 30.0);
+		else
+			Position(robot, posx, 55.0);
+	}
+
+	
+}
+
+
+
 void MoonAttack ( Robot *robot, Environment *env,int numero )
 {
-	numero = numero == 3? 4: 3;
+	
 	int zonaPelota;
-	//Velocity (robot, 127, 127);
-	//Angle (robot, 45);
 	PredictBall ( env );
 	double ball_x = env->currentBall.pos.x;
 	double ball_y = env->currentBall.pos.y;
+	numero =  (numero == 3) ? 4: 3;
+	int areaChica = ladoEquipo == LADO_AZUL ? 3 : 8; 
+
 	zonaPelota = ZonaReal(ball_x,ball_y);
-	//Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
-	//if (robot->pos.y > ball_y - 8 && robot->pos.y < ball_y + 8){
-	if (zonaPelota == 8 || zonaPelota == 9)
-	{
-		if (robot->pos.x != env->home[4].pos.x && robot->pos.y != env->home[4].pos.y) 
-			Position(robot, 66.0, 30.0);
-		else
-			Position(robot, 66.0, 55.0);
-	}
-	else
-	{
-		if (estoyMasCercaToXY(robot, &env->home[numero],ball_x,ball_y)){
-			zonaPelota = Zona(ball_x,ball_y);
-			if(zonaPelota == 1 || zonaPelota == 2 || zonaPelota == 7 || zonaPelota == 8 ){
-				if (estoyAbajoXY(robot,ball_x,ball_y))
-					Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
-				else
-					Position(robot, env->predictedBall.pos.x ,env->currentBall.pos.y - 15);
-			}
-			else if(ZonaReal(ball_x,ball_y) > 6){
-				if (estoyIzquierdaXY(robot,ball_x,ball_y))
-					Position(robot, env->predictedBall.pos.x + 15 ,env->currentBall.pos.y - 15);
-				else
-					Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
-			}
+	if (estoyMasCercaToXY(robot, &env->home[numero],ball_x,ball_y)){
+		
+		if( (ladoEquipo == LADO_AZUL && zonaPelota <= areaChica) ||
+			(ladoEquipo == LADO_AMARILLO && zonaPelota >= areaChica))
+		{
+			if ( (estoyAbajoXY(robot,ball_x,ball_y) && ball_y < AREA_CHICA_LINEA_INFERIOR) ||
+				 (estoyArribaXY(robot,ball_x,ball_y) && ball_y > AREA_CHICA_LINEA_SUPERIOR) )
+				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+			else if ( (estoyArribaXY(robot,ball_x,ball_y) || estoyAbajoXY(robot,ball_x,ball_y) ) 
+				&& ball_y > AREA_CHICA_LINEA_INFERIOR && ball_y < AREA_CHICA_LINEA_SUPERIOR && zonaPelota == areaChica)
+				{
+					if (ladoEquipo == LADO_AZUL)
+						Position(robot, env->predictedBall.pos.x + 15 ,env->currentBall.pos.y);
+					else
+						Position(robot, env->predictedBall.pos.x - 15 ,env->currentBall.pos.y - 15);
+				}	
+			else if (ball_y < AREA_CHICA_LINEA_INFERIOR)
+				Position(robot, env->predictedBall.pos.x ,env->currentBall.pos.y - 15);
+			else if (ball_y > AREA_CHICA_LINEA_SUPERIOR)
+				Position(robot, env->predictedBall.pos.x, env->currentBall.pos.y + 15);
+			else 
+				Position(robot, env->predictedBall.pos.x, env->currentBall.pos.y);
+		}
+		else if(ladoEquipo == LADO_AZUL && ZonaReal(ball_x, ball_y) > 6){
+			if (estoyIzquierdaXY(robot,ball_x,ball_y) )
+				Position(robot, env->predictedBall.pos.x + 15 ,env->currentBall.pos.y - 15);
 			else
 				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
 		}
+		else if(ladoEquipo == LADO_AMARILLO && ZonaReal(ball_x, ball_y) < 5){
+				if (estoyDerechaXY(robot, ball_x, ball_y) )
+				Position(robot, env->predictedBall.pos.x - 15, env->currentBall.pos.y - 15);
+			else
+				Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+				
+			}
 		else
-		{
-			if (ZonaReal(ball_x,ball_y) < 3 ) // si esta en el area chica pegale a la pelota
-				Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
-			else // despues sera seguir al otro 
-				Position(robot, env->predictedBall.pos.x + 10,env->predictedBall.pos.y);
-		}
+			Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
 	}
+	else
+	{
+		if ((ladoEquipo == LADO_AZUL && ZonaReal(ball_x,ball_y) < areaChica)
+			|| ladoEquipo == LADO_AMARILLO && ZonaReal(ball_x,ball_y) > areaChica) // si esta en el area chica pegale a la pelota
+			Position(robot, env->predictedBall.pos.x ,env->predictedBall.pos.y);
+		else  
+			//seguirJugador( &env->home[3],&env->home[numero],4,NOROESTE);
+			Position(robot, env->predictedBall.pos.x + 10,env->predictedBall.pos.y);
+	}
+	
 	
 	// Position(robot, 0.0, 0.0);
 	if ( (ZonaReal(ball_x,ball_y) > 3 && ZonaReal(robot->pos.x,robot->pos.x) > 3)
 		|| (ZonaReal(ball_x,ball_y) < 8 && ZonaReal(robot->pos.x,robot->pos.x) < 8)){
 			salirDeChoque(robot, env);
-			salirDeChoque2(robot,env);
+			//salirDeChoque2(robot,env);
 	}
 	NearBound2(robot,robot->velocityLeft,robot->velocityRight,env);
+	fijarPosicionDelantero(robot,env);
 }
 
 //agregado para que sigan la pelota cuando pasa la mitad de cancha
@@ -321,14 +377,20 @@ void MoonFollowOpponent ( Robot *robot, OpponentRobot *opponent ,Environment *en
 	PredictBall ( env );
 	double ball_x = env->currentBall.pos.x;
 	double ball_y = env->currentBall.pos.y;
+	int limiteDefensivo = ladoEquipo == LADO_AZUL ? 6 : 4;
+	double posDefensorX = ladoEquipo == LADO_AZUL 
+						  ? POS_DEFENSOR_PASIVO_AZUL_X 
+						  : POS_DEFENSOR_PASIVO_AMARILLO_X;
 
-	if (ZonaReal(ball_x, ball_y) > 6)
+	if ( (ladoEquipo == LADO_AZUL && ZonaReal(ball_x, ball_y) > 6) || 
+		(ladoEquipo == LADO_AMARILLO && ZonaReal(ball_x, ball_y) < 5) ){
 		Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
+	}
 	else{
 		if (robot->pos.x != env->home[1].pos.x && robot->pos.y != env->home[1].pos.y) 
-			Position(robot, POS_DEFENSOR_PASIVO_X, POS_DEFENSOR_PASIVO_UNO_Y);
+			Position(robot, posDefensorX, POS_DEFENSOR_PASIVO_UNO_Y);
 		else
-			Position(robot, POS_DEFENSOR_PASIVO_X, POS_DEFENSOR_PASIVO_DOS_Y);
+			Position(robot, posDefensorX, POS_DEFENSOR_PASIVO_DOS_Y);
 	}
 		
 }
@@ -384,12 +446,17 @@ void Goalie1 ( Robot *robot, Environment *env )
 
 void Goalie2 ( Robot *robot, Environment *env )
 {
+	int areaChica = ladoEquipo == LADO_AZUL ? 9 : 1;
+	int areaGrande = ladoEquipo == LADO_AZUL ? 8 : 2;
+	double posx = ladoEquipo == LADO_AZUL ? 90.7 : 10.66;
+	double posy = 42.2;
+
 	PredictBall(env);
 	int zona = ZonaReal(env->predictedBall.pos.x, env->predictedBall.pos.y);
-	if(zona == 9 || zona == 8)
+	if(zona == areaChica || zona == areaGrande)
 		Position(robot, env->predictedBall.pos.x, env->predictedBall.pos.y);
 	else
-		Position(robot, 90.7 , 42.2 );	
+		Position(robot, posx , posy );	
 }
 
 void Attack2 ( Robot *robot, Environment *env )

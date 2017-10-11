@@ -118,6 +118,14 @@ const double DISTANCIA_MARCA = 8.0;
 const double DESVIO_ORIENTACION = 5.0;
 
 
+//--------------------------------------------------------------------
+//. Hack para saber si es equipo azul o amarillo 
+
+const int LADO_AZUL = 1;
+const int LADO_AMARILLO = 2;
+
+//
+
 //---------------------------------------------------------------------
 // Defensor.
 
@@ -128,7 +136,8 @@ const double LINEA_ZONA_PELIGRO_DEF_AZUL_Y_INF = 25.29;
 
 const double LINEA_ZONA_PELIGRO_DEF_AZUL_X2 = 85.71;
 
-const double POS_DEFENSOR_PASIVO_X = 80.0;
+const double POS_DEFENSOR_PASIVO_AZUL_X = 80.0;
+const double POS_DEFENSOR_PASIVO_AMARILLO_X = 20.0;
 const double POS_DEFENSOR_PASIVO_UNO_Y = 30.0;
 const double POS_DEFENSOR_PASIVO_DOS_Y = 50.0;
 

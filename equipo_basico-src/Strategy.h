@@ -40,6 +40,7 @@ const double GLEFT = 2.8748;
 const double FRIGHTX = 93.4259;
 const double FLEFTX = 6.8118;
 
+
 typedef struct
 {
 	double x, y, z;
